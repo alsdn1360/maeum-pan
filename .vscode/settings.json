@@ -1,0 +1,33 @@
+{
+  /** prettier 설정 파일 경로 지정 */
+  "prettier.configPath": "./prettier.config.mjs",
+
+  /** prettier 기본 포맷터로 설정 */
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  /** 파일을 저장할 때마다 포맷팅 실행 */
+  "editor.formatOnSave": true,
+
+  /** 파일을 저장할 때마다 eslint 규칙에 따라 자동으로 코드를 수정 */
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+
+  /** tailwindcss 설정 파일 경로 지정 */
+  "tailwindCSS.experimental.configFile": "src/styles/globals.css",
+
+  /** CSS 파일을 Tailwind CSS로 인식하도록 파일 연결 설정 */
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+
+  /** 문자열 내에서도 빠른 제안 기능 활성화 */
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+
+  /** Tailwind CSS 지원 언어 확장 - plaintext 파일을 html로 처리 */
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "html"
+  }
+}
