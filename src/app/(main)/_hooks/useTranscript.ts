@@ -3,8 +3,9 @@ import { useState } from 'react';
 const TRANSCRIPT_API = 'http://127.0.0.1:8000';
 
 export interface TranscriptResponse {
+  videoId: string;
   summary: string;
-  sermon_date: string; // YYYY-MM-DD
+  sermonDate: string; // YYYY-MM-DD
 }
 
 export const useTranscript = () => {

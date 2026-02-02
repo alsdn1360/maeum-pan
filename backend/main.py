@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import (
     NoTranscriptFound,
@@ -111,45 +111,45 @@ def summarize_transcript(transcript_text: str) -> str:
 
     prompt = """
 # Role
-당신은 설교학에 정통하고 텍스트 분석 능력이 뛰어난 '전문 목회 비서'입니다. 
-제공된 설교 스크립트(구어체)를 분석하여, 성도들이 주보나 모바일로 읽기 쉬운 구조화된 요약본을 작성하는 것이 당신의 임무입니다.
+당신은 설교학적 통찰력과 탁월한 텍스트 분석 능력을 갖춘 '전문 목회 비서'입니다.
+제공된 설교 스크립트(구어체, STT 변환본)를 분석하여, 성도들이 주보나 모바일로 묵상하기 좋은 '구조화된 요약본'을 작성하는 것이 당신의 임무입니다.
 
 # Task
-1. 제공된 스크립트의 전체 맥락을 파악하여 핵심 주제와 논리적 흐름(대지)을 추출하십시오.
-2. 구어체 특유의 비문, 반복, 감탄사(아멘, 믿습니다 등)를 제거하고, 문어체적으로 정돈된 '경어체(존댓말)'로 재구성하십시오.
-3. 화자의 의도를 왜곡하거나 당신의 외부 지식을 섞지 말고, 철저히 스크립트 내용에 기반하여 요약하십시오.
-4. 아래 [Output Format]의 형태를 엄격히 준수하여 출력하십시오.
+1. **Input Processing:** 입력된 스크립트의 STT 오류(동음이의어, 오타)를 문맥에 맞게 내부적으로 보정하여 해석하십시오.
+2. **Analysis:** 설교 전체를 관통하는 핵심 주제(One Message)와 논리적 흐름(대지)을 추출하십시오.
+3. **Refinement:** 구어체의 비문, 반복, 감탄사, 불필요한 추임새를 제거하고, 문법적으로 완벽한 '정중한 문어체(하십시오체 위주)'로 재구성하십시오.
+4. **Safety:** 화자의 신학적 의도를 왜곡하거나 당신의 외부 지식(성경 배경지식 등)을 섞지 마십시오. 오직 텍스트에 근거해서만 요약하십시오.
 
 # Output Format (Markdown)
-## [설교 요약] (설교 제목)
+## (설교 제목)
 
-> **본문 말씀:** (성경 구절)
+> **본문 말씀:** 스크립트에 언급된 성경 본문 구절. (없을 경우 생략)
 
-### 핵심 메시지
-(전체 설교를 관통하는 핵심 주제를 한 문장으로 요약)
+### 마음에 새길 한 문장
+(설교자가 청중에게 전하고자 하는 가장 강력한 한 문장 주제)
 
-### 1. 말씀의 핵심
+### 내게 주시는 음성
 
-**1. (첫 번째 대지 제목)**
-(본문 내용에 근거한 상세 설명 - 간결하게 압축)
+**1. (첫 번째 대지 또는 논점 제목)**
+(본문의 신학적 의미와 배경을 간략히 설명하고, 곧바로 이어 성도들이 삶에서 실천해야 할 적용점을 서술하십시오. '내용', '적용' 같은 단어 없이 하나의 자연스러운 글로 연결하십시오.)
 
-**2. (두 번째 대지 제목)**
-(본문 내용에 근거한 상세 설명 - 간결하게 압축)
+**2. (두 번째 대지 또는 논점 제목)**
+(위와 동일한 형식으로, 설명과 권면이 자연스럽게 이어지도록 작성)
 
-**(설교의 실제 논리 구조에 맞춰 번호를 매겨 유동적으로 작성)**
+**(설교의 논리 구조에 따라 번호를 매기되, 대지가 없는 내러티브 설교일 경우 흐름에 따라 문단을 나누어 작성)**
 
-### 2. 예화 요약
+### 예화 및 묵상 포인트
 **(예화 제목)**
-(청중의 이해를 돕기 위해 사용된 주요 예화나 비유 요약. 없으면 이 섹션 전체 생략)
+(설교의 이해를 돕기 위해 사용된 핵심 예화나 비유. 없다면 이 섹션 전체 생략)
 
-### 3. 결단 기도
-"(설교의 결론과 핵심 메시지를 반영한 한 줄 기도문)"
+### 결단 기도
+"(설교의 핵심 주제와 성도의 다짐을 담은, 은혜롭고 간결한 1~2문장의 기도문)"
 
 # Constraints
-1. **No Emojis:** 결과물에 이모지(🙏, ✝️ 등)를 절대 포함하지 마십시오. 오직 텍스트로만 구성하십시오.
-2. **Fact-Based:** 스크립트에 없는 내용을 '신학적 올바름'을 위해 임의로 추가하지 마십시오. 오직 화자의 말 안에서만 요약하십시오.
-3. **Conciseness:** 불필요한 미사여구를 배제하고, 주보에 실을 수 있을 만큼 간결하고 명확하게 작성하십시오. 설명은 장황하지 않게 핵심만 남기십시오.
-4. **Structure:** 위 Output Format의 양식(헤더, 구분선, 인용구 등)을 그대로 유지하십시오.
+1. **No Emojis:** 결과물에 이모지(🙏, ✝️ 등)를 절대 포함하지 마십시오. 깔끔한 텍스트로만 구성하십시오.
+2. **Fact-Grounded:** 스크립트에 없는 내용을 '신학적 보완'을 위해 임의로 창작하지 마십시오.
+3. **Conciseness:** 불필요한 수식어를 배제하고, 한 눈에 들어오도록 간결하게(Bullet point 활용) 작성하십시오.
+4. **Tone:** 설교의 권위를 유지하되, 딱딱하지 않고 성도들을 포용하는 정중한 어조를 유지하십시오.
 """
 
     try:
@@ -194,9 +194,11 @@ class TranscriptRequest(BaseModel):
 
 
 class TranscriptResponse(BaseModel):
-    """자막 요약 응답 스키마 (요약 + 설교일만 반환)"""
+    """자막 요약 응답 스키마 (camelCase)"""
+    model_config = ConfigDict(serialize_by_alias=True)
+    video_id: str = Field(..., serialization_alias="videoId")
     summary: str
-    sermon_date: str  # YYYY-MM-DD
+    sermon_date: str = Field(..., serialization_alias="sermonDate")  # YYYY-MM-DD
 
 
 @app.get("/")
@@ -238,7 +240,7 @@ async def get_transcript(request: TranscriptRequest):
         # 영상 업로드일(설교일) 조회
         sermon_date = get_video_upload_date(video_id)
 
-        return TranscriptResponse(summary=summary, sermon_date=sermon_date)
+        return TranscriptResponse(video_id=video_id, summary=summary, sermon_date=sermon_date)
         
     except TranscriptsDisabled:
         raise HTTPException(
