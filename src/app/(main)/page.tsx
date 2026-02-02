@@ -1,4 +1,4 @@
-import { LinkInputForm } from '@/components/features/main/link-input-form.client';
+import { LinkInputForm } from '@/app/(main)/_components/link-input-form.client';
 
 const MainPage = () => {
   return (
