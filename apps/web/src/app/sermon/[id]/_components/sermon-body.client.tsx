@@ -3,37 +3,20 @@
 import { useLayoutEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
+import Loading from '@/app/loading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { type SermonCacheData, takeSermonCache } from '@/lib/sermon-cache';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import remarkGfm from 'remark-gfm';
 
 type Props = {
   id: string;
 };
 
-const SermonLoadingSkeleton = () => {
-  return (
-    <div className="animate-in fade-in mx-auto max-w-3xl px-4 py-10 duration-200">
-      <div className="mb-8 border-b pb-4">
-        <div className="bg-muted h-8 w-48 rounded-md" />
-        <div className="bg-muted mt-3 h-4 w-64 rounded-md" />
-      </div>
-      <div className="space-y-3">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div
-            key={i}
-            className="bg-muted h-4 rounded-md"
-            style={{ width: `${80 - i * 5}%` }}
-          />
-        ))}
-      </div>
-    </div>
-  );
-};
-
 export const SermonBody = ({ id }: Props) => {
+  const router = useRouter();
   const [data, setData] = useState<SermonCacheData | null>(null);
   const [isResolved, setIsResolved] = useState(false);
 
@@ -67,7 +50,7 @@ export const SermonBody = ({ id }: Props) => {
   }, [id]);
 
   if (!isResolved) {
-    return <SermonLoadingSkeleton />;
+    return <Loading />;
   }
 
   if (!data) {
@@ -111,7 +94,7 @@ export const SermonBody = ({ id }: Props) => {
               )
             ) {
               localStorage.removeItem(`sermon-${id}`);
-              window.location.href = '/';
+              router.replace('/');
             }
           }}>
           삭제하기
