@@ -1,4 +1,5 @@
 import { LinkInputForm } from './_components/link-input-form.client';
+import { SermonList } from './_components/sermon-list.client';
 
 const MainPage = () => {
   return (
@@ -10,7 +11,7 @@ const MainPage = () => {
           <div className="flex flex-col text-center leading-relaxed">
             <p>흘러가는 말씀을 마음에 새기세요</p>
             <p className="text-muted-foreground text-sm">
-              유튜브 설교 링크를 입력하면,
+              유튜브 설교 영상의 링크를 입력하면,
               <br className="block sm:hidden" /> 다시 묵상할 수 있도록 정리해
               드립니다
             </p>
@@ -18,14 +19,14 @@ const MainPage = () => {
 
           <LinkInputForm />
 
-          <div className="flex flex-col text-center leading-relaxed">
-            <p className="text-muted-foreground text-xs">
-              영상 하단 공유 버튼을 이용해서 링크를 복사 붙여넣기 해주세요
-              <br />
-              자막이 없는 영상은 지원하지 않습니다
-            </p>
-          </div>
+          <p className="text-muted-foreground text-center text-xs">
+            자막이 없는 영상은 지원하지 않습니다
+          </p>
         </div>
+      </div>
+
+      <div className="absolute right-0 bottom-4 left-0 flex justify-center px-4">
+        <SermonList />
       </div>
     </main>
   );

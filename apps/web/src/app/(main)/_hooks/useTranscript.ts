@@ -1,12 +1,7 @@
 import { useState } from 'react';
 
-const TRANSCRIPT_API = 'http://127.0.0.1:8000';
-
-export interface TranscriptResponse {
-  videoId: string;
-  summary: string;
-  sermonDate: string; // YYYY-MM-DD
-}
+import { fetchTranscript } from '@/api/main/get-sermon/fetch';
+import { type TranscriptResponse } from '@/api/main/get-sermon/type';
 
 export const useTranscript = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,20 +12,9 @@ export const useTranscript = () => {
     setData(null);
 
     try {
-      const res = await fetch(`${TRANSCRIPT_API}/transcript`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, languages: ['ko', 'en'] }),
-      });
-
-      const responseData = await res.json();
-
-      if (!res.ok) {
-        throw new Error(responseData.detail || '자막 요청 실패');
-      }
+      const responseData = await fetchTranscript({ url });
 
       setData(responseData);
-      console.log('자막 응답:', responseData);
 
       return responseData;
     } catch (err) {

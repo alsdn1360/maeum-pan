@@ -3,7 +3,10 @@
 import { useLayoutEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import { type SermonCacheData, takeSermonCache } from '@/lib/sermon-cache';
+import Link from 'next/link';
 import remarkGfm from 'remark-gfm';
 
 type Props = {
@@ -76,8 +79,44 @@ export const SermonBody = ({ id }: Props) => {
   }
 
   return (
-    <article className="prose prose-neutral prose-lg dark:prose-invert max-w-none">
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{data.summary}</ReactMarkdown>
-    </article>
+    <div className="flex w-full flex-col">
+      <article className="prose prose-neutral prose-lg dark:prose-invert max-w-none">
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {data.summary}
+        </ReactMarkdown>
+      </article>
+
+      <Separator className="mt-16 mb-4" />
+
+      <div className="flex flex-col items-end justify-between gap-8">
+        <div className="flex flex-col items-end gap-1">
+          <Link
+            href={data.originalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground ml-4 line-clamp-1 text-sm break-all transition-colors">
+            {data.originalUrl}
+          </Link>
+          <p className="text-muted-foreground text-sm">
+            {data.sermonDate || '날짜 미상'}
+          </p>
+        </div>
+
+        <Button
+          variant="destructive"
+          onClick={() => {
+            if (
+              confirm(
+                '정말 삭제하시겠습니까? 삭제된 말씀은 복구할 수 없습니다.',
+              )
+            ) {
+              localStorage.removeItem(`sermon-${id}`);
+              window.location.href = '/';
+            }
+          }}>
+          삭제하기
+        </Button>
+      </div>
+    </div>
   );
 };
