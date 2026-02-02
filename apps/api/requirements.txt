@@ -1,0 +1,15 @@
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.0.0
+python-dotenv>=1.0.0
+
+# YouTube
+youtube-transcript-api>=0.6.3
+yt-dlp>=2024.1.0
+
+# AI
+google-generativeai>=0.8.0
+
+# Dev tools
+ruff>=0.9.0

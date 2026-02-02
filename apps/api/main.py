@@ -1,13 +1,6 @@
-"""
-YouTube 자막 추출 API
-FastAPI, youtube-transcript-api, Gemini API를 사용하여
-YouTube 영상의 자막을 추출하고 요약합니다.
-"""
-
 import logging
 import os
 import re
-from typing import Optional
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,10 +26,11 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 app = FastAPI(
-    title="YouTube Transcript API",
-    description="YouTube 영상의 자막을 추출하는 API",
+    title="마음판 API",
+    description="유튜브 스크립트를 추출하고, Gemini API를 사용해 요약합니다",
     version="1.0.0",
 )
+
 
 # CORS 설정 (프론트엔드에서 접근 가능하도록)
 app.add_middleware(
@@ -51,7 +45,7 @@ app.add_middleware(
 def extract_video_id(url_or_id: str) -> str:
     """
     YouTube URL 또는 비디오 ID에서 비디오 ID를 추출합니다.
-    
+
     지원하는 URL 형식:
     - https://www.youtube.com/watch?v=VIDEO_ID
     - https://youtu.be/VIDEO_ID
@@ -61,12 +55,15 @@ def extract_video_id(url_or_id: str) -> str:
     # 이미 비디오 ID 형식인 경우 (11자리 영숫자)
     if re.match(r"^[a-zA-Z0-9_-]{11}$", url_or_id):
         return url_or_id
-    
+
     # youtube.com/watch?v= 형식
-    match = re.search(r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})", url_or_id)
+    match = re.search(
+        r"(?:youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/)([a-zA-Z0-9_-]{11})",
+        url_or_id,
+    )
     if match:
         return match.group(1)
-    
+
     raise ValueError(f"유효하지 않은 YouTube URL 또는 비디오 ID입니다: {url_or_id}")
 
 
@@ -181,10 +178,11 @@ def summarize_transcript(transcript_text: str) -> str:
 
 class TranscriptRequest(BaseModel):
     """자막 요청 스키마"""
+
     url: str
     languages: list[str] = ["ko", "en"]  # 기본값: 한국어 우선, 영어 대체
     preserve_formatting: bool = False
-    
+
     @field_validator("url")
     @classmethod
     def validate_url(cls, v: str) -> str:
@@ -195,6 +193,7 @@ class TranscriptRequest(BaseModel):
 
 class TranscriptResponse(BaseModel):
     """자막 요약 응답 스키마 (camelCase)"""
+
     model_config = ConfigDict(serialize_by_alias=True)
     video_id: str = Field(..., serialization_alias="videoId")
     summary: str
@@ -211,7 +210,7 @@ async def root():
 async def get_transcript(request: TranscriptRequest):
     """
     YouTube 영상의 자막을 추출합니다.
-    
+
     - **url**: YouTube 영상 URL 또는 비디오 ID
     - **languages**: 선호하는 언어 코드 목록 (우선순위 순, 기본값: ["ko", "en"])
     - **preserve_formatting**: HTML 포맷 유지 여부 (기본값: false)
@@ -221,7 +220,7 @@ async def get_transcript(request: TranscriptRequest):
         video_id = extract_video_id(request.url)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    
+
     try:
         # YouTubeTranscriptApi 인스턴스 생성 및 자막 가져오기
         ytt_api = YouTubeTranscriptApi()
@@ -230,7 +229,7 @@ async def get_transcript(request: TranscriptRequest):
             languages=request.languages,
             preserve_formatting=request.preserve_formatting,
         )
-        
+
         # 전체 텍스트 생성 (요약용)
         full_text = " ".join(segment.text for segment in transcript)
 
@@ -240,8 +239,10 @@ async def get_transcript(request: TranscriptRequest):
         # 영상 업로드일(설교일) 조회
         sermon_date = get_video_upload_date(video_id)
 
-        return TranscriptResponse(video_id=video_id, summary=summary, sermon_date=sermon_date)
-        
+        return TranscriptResponse(
+            video_id=video_id, summary=summary, sermon_date=sermon_date
+        )
+
     except TranscriptsDisabled:
         raise HTTPException(
             status_code=403,
@@ -267,27 +268,28 @@ async def get_transcript(request: TranscriptRequest):
 @app.get("/transcript/{video_id}")
 async def get_transcript_by_id(
     video_id: str,
-    languages: Optional[str] = "ko,en",
+    languages: str | None = "ko,en",
     preserve_formatting: bool = False,
 ):
     """
     GET 방식으로 YouTube 영상의 자막을 추출합니다.
-    
+
     - **video_id**: YouTube 비디오 ID (11자리)
     - **languages**: 선호하는 언어 코드 (쉼표로 구분, 기본값: "ko,en")
     - **preserve_formatting**: HTML 포맷 유지 여부 (기본값: false)
     """
     language_list = [lang.strip() for lang in languages.split(",")]
-    
+
     request = TranscriptRequest(
         url=video_id,
         languages=language_list,
         preserve_formatting=preserve_formatting,
     )
-    
+
     return await get_transcript(request)
 
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

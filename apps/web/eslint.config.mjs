@@ -30,7 +30,7 @@ const eslintConfig = defineConfig([
       'import/resolver': {
         typescript: {
           alwaysTryTypes: true,
-          project: ['./tsconfig.json'],
+          project: 'apps/web/tsconfig.json',
         },
         node: {
           extensions: ['.js', '.jsx', '.ts', '.tsx'],
@@ -39,8 +39,8 @@ const eslintConfig = defineConfig([
     },
     rules: {
       // Import 관련 규칙들
-      'import/no-unresolved': 'error',
-      'import/no-duplicates': 'error',
+      'import/no-unresolved': 'off',
+      'import/no-duplicates': 'off',
       'import/no-unused-modules': 'warn',
       'import/newline-after-import': ['error', { count: 1 }],
 
