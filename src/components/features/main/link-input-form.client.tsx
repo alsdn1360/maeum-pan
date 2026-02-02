@@ -12,7 +12,7 @@ export const LinkInputForm = () => {
         e.preventDefault();
         console.log('폼 제출됨');
       }}
-      className="flex items-center gap-2">
+      className="mx-auto flex w-full max-w-xl items-center gap-1.5">
       <Input
         type="url"
         placeholder="예시: https://www.youtube.com/watch?v=..."

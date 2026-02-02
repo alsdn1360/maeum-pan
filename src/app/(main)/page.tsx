@@ -17,6 +17,14 @@ const MainPage = () => {
           </div>
 
           <LinkInputForm />
+
+          <div className="flex flex-col text-center leading-relaxed">
+            <p className="text-muted-foreground text-xs">
+              영상 하단 공유 버튼을 이용해서 링크를 복사 붙여넣기 해주세요
+              <br />
+              자막이 없는 영상은 지원하지 않습니다
+            </p>
+          </div>
         </div>
       </div>
     </main>
