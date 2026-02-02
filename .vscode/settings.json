@@ -14,7 +14,7 @@
   },
 
   /** tailwindcss 설정 파일 경로 지정 */
-  "tailwindCSS.experimental.configFile": "src/styles/globals.css",
+  "tailwindCSS.experimental.configFile": "src/app/globals.css",
 
   /** CSS 파일을 Tailwind CSS로 인식하도록 파일 연결 설정 */
   "files.associations": {
