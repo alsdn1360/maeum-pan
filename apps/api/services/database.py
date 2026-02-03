@@ -37,7 +37,12 @@ if settings.DATABASE_URL:
         elif db_url.startswith("postgresql://"):
             db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
 
-        async_engine = create_async_engine(db_url, echo=False, pool_pre_ping=True)
+        async_engine = create_async_engine(
+            db_url,
+            echo=False,
+            pool_pre_ping=True,
+            connect_args={"statement_cache_size": 0},  # pgbouncer 호환
+        )
         async_session_factory = async_sessionmaker(
             async_engine, class_=AsyncSession, expire_on_commit=False
         )
