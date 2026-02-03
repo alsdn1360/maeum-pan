@@ -96,7 +96,7 @@ export const SermonBody = ({ videoId }: SermonBodyProps) => {
             {data.originalUrl}
           </Link>
           <p className="text-muted-foreground text-sm">
-            {data.sermonDate || '날짜 미상'} 설교
+            업로드 날짜: {data.sermonDate || '날짜 미상'}
           </p>
         </div>
 

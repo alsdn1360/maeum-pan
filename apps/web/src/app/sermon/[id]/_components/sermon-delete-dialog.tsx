@@ -22,7 +22,7 @@ export const SermonDeleteDialog = ({ videoId }: SermonDeleteDialogProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger render={<Button variant="destructive" />}>
-        마음판에서 지우기
+        마음판에서 비우기
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
