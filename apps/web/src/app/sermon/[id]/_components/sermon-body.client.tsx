@@ -96,7 +96,10 @@ export const SermonBody = ({ videoId }: SermonBodyProps) => {
             {data.originalUrl}
           </Link>
           <p className="text-muted-foreground text-sm">
-            업로드 날짜: {data.sermonDate || '날짜 미상'}
+            마음에 담은 날:{' '}
+            {data.createdAt
+              ? new Date(data.createdAt).toLocaleDateString('ko-KR')
+              : '날짜 미상'}
           </p>
         </div>
 

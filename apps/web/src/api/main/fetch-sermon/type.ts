@@ -1,7 +1,7 @@
 export interface FetchSermonResponse {
   videoId: string;
   summary: string;
-  sermonDate: string; // YYYY-MM-DD
+  createdAt: string;
   isNonSermon: boolean;
 }
 

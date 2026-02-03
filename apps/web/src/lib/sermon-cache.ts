@@ -1,7 +1,7 @@
 export interface SermonCacheData {
   videoId: string;
   summary: string;
-  sermonDate: string;
+  createdAt: string;
   originalUrl: string;
   savedAt: string;
   isNonSermon?: boolean;

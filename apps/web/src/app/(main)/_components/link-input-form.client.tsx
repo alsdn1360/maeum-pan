@@ -57,15 +57,21 @@ export const LinkInputForm = () => {
           setLocalError(null);
           clearError();
 
-          if (isPending) return;
+          if (isPending) {
+            return;
+          }
 
           const url = inputRef.current?.value?.trim();
 
-          if (!url) return;
+          if (!url) {
+            return;
+          }
 
           const response = await requestSermon(url);
 
-          if (!response?.videoId) return;
+          if (!response?.videoId) {
+            return;
+          }
 
           if (response.isNonSermon) {
             setLocalError(ERROR_MESSAGES.nonSermon);
@@ -76,7 +82,7 @@ export const LinkInputForm = () => {
           const sermonStorageData: SermonCacheData = {
             videoId: response.videoId,
             summary: response.summary,
-            sermonDate: response.sermonDate,
+            createdAt: response.createdAt,
             originalUrl: url,
             savedAt: new Date().toISOString(),
             isNonSermon: response.isNonSermon,

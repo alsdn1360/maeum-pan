@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
@@ -22,5 +24,5 @@ class SermonResponse(BaseModel):
     model_config = ConfigDict(serialize_by_alias=True)
     video_id: str = Field(..., serialization_alias="videoId")
     summary: str
-    sermon_date: str = Field(..., serialization_alias="sermonDate")  # YYYY-MM-DD
+    created_at: datetime = Field(..., serialization_alias="createdAt")
     is_non_sermon: bool = Field(False, serialization_alias="isNonSermon")

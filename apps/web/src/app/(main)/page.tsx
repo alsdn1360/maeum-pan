@@ -1,9 +1,13 @@
 import { LinkInputForm } from './_components/link-input-form.client';
-import { SermonList } from './_components/sermon-list.client';
+import { SermonListSheet } from './_components/sermon-list-sheet.client';
 
 const MainPage = () => {
   return (
     <main className="relative flex h-screen w-full flex-col overflow-hidden">
+      <header className="px-4 py-2">
+        <SermonListSheet />
+      </header>
+
       <div className="absolute top-1/2 left-1/2 flex w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-8 px-4">
         <h1 className="text-2xl font-bold">마음판</h1>
 
@@ -19,10 +23,6 @@ const MainPage = () => {
 
           <LinkInputForm />
         </div>
-      </div>
-
-      <div className="absolute right-0 bottom-12 left-0 flex justify-center px-4">
-        <SermonList />
       </div>
 
       <footer className="absolute right-0 bottom-4 left-0 flex flex-col items-center justify-center px-4">
