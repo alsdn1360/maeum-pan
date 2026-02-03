@@ -31,7 +31,7 @@ const RotatingLoadingMessage = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setMsgIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
-    }, 3000);
+    }, 2500);
 
     return () => clearInterval(interval);
   }, []);
@@ -39,11 +39,11 @@ const RotatingLoadingMessage = () => {
   return (
     <motion.p
       key={LOADING_MESSAGES[msgIndex]}
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -8 }}
+      exit={{ opacity: 0, y: -6 }}
       transition={{
-        duration: 0.6,
+        duration: 0.5,
         ease: 'easeInOut',
       }}
       className="text-muted-foreground absolute inset-x-0 top-0 text-xs">
@@ -56,6 +56,7 @@ export const LinkInputForm = () => {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isTransitioning, startTransition] = useTransition();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { requestSermon, isLoading } = useSermon();
 
@@ -66,6 +67,7 @@ export const LinkInputForm = () => {
       <form
         onSubmit={async (e) => {
           e.preventDefault();
+          setErrorMessage(null);
 
           if (isPending) {
             return;
@@ -80,9 +82,17 @@ export const LinkInputForm = () => {
           const response = await requestSermon(url);
 
           if (response) {
-            const { videoId, summary, sermonDate } = response;
+            const { videoId, summary, sermonDate, isNonSermon } = response;
 
             if (!videoId) {
+              return;
+            }
+
+            if (isNonSermon) {
+              setErrorMessage('목사님의 말씀이 담긴 영상만 요약할 수 있습니다');
+
+              setTimeout(() => setErrorMessage(null), 5000);
+
               return;
             }
 
@@ -92,6 +102,7 @@ export const LinkInputForm = () => {
               sermonDate,
               originalUrl: url,
               savedAt: new Date().toISOString(),
+              isNonSermon,
             };
 
             setSermonCache(videoId, sermonStorageData);
@@ -128,7 +139,16 @@ export const LinkInputForm = () => {
       {/* 상태 메시지 영역 */}
       <div className="relative h-4 w-full text-center">
         <AnimatePresence mode="wait">
-          {isPending ? (
+          {errorMessage ? (
+            <motion.p
+              key="error-msg"
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              className="text-destructive absolute inset-x-0 top-0 text-xs">
+              {errorMessage}
+            </motion.p>
+          ) : isPending ? (
             <RotatingLoadingMessage key="loading-msg" />
           ) : (
             <motion.p

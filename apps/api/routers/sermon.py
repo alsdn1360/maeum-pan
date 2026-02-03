@@ -1,10 +1,17 @@
+import asyncio
+import random
+
 from fastapi import APIRouter, HTTPException
 
 from schemas.sermon import SermonRequest, SermonResponse
+from services.database import SermonCacheService
 from services.gemini import GeminiService
 from services.youtube import YouTubeService
 
 router = APIRouter()
+
+CACHE_DELAY_MIN = 10
+CACHE_DELAY_MAX = 15
 
 
 @router.post("/sermon", response_model=SermonResponse)
@@ -17,20 +24,36 @@ async def get_sermon(request: SermonRequest):
     - **preserve_formatting**: HTML 포맷 유지 여부 (기본값: false)
     """
     try:
-        # 비디오 ID 추출
         video_id = YouTubeService.extract_video_id(request.url)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    # 자막 텍스트 가져오기 (비동기)
+    cached = await SermonCacheService.get_cached_sermon(video_id)
+    if cached:
+        delay = random.uniform(CACHE_DELAY_MIN, CACHE_DELAY_MAX)
+        await asyncio.sleep(delay)
+        return SermonResponse(
+            video_id=cached["video_id"],
+            summary=cached["summary"],
+            sermon_date=cached["sermon_date"],
+            is_non_sermon=cached.get("is_non_sermon", False),
+        )
+
     transcript_text = await YouTubeService.get_transcript_text(
         video_id, request.languages, request.preserve_formatting
     )
 
-    # Gemini로 요약 (비동기)
-    summary = await GeminiService.summarize_transcript(transcript_text)
+    result = await GeminiService.summarize_transcript(transcript_text)
 
-    # 영상 업로드일(설교일) 조회 (비동기)
     sermon_date = await YouTubeService.get_video_upload_date(video_id)
 
-    return SermonResponse(video_id=video_id, summary=summary, sermon_date=sermon_date)
+    await SermonCacheService.save_sermon(
+        video_id, result.summary, sermon_date, result.is_non_sermon
+    )
+
+    return SermonResponse(
+        video_id=video_id,
+        summary=result.summary,
+        sermon_date=sermon_date,
+        is_non_sermon=result.is_non_sermon,
+    )

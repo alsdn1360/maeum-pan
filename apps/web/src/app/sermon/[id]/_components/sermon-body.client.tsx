@@ -60,6 +60,22 @@ export const SermonBody = ({ videoId }: SermonBodyProps) => {
     );
   }
 
+  if (data.isNonSermon) {
+    return (
+      <div className="flex flex-col items-center gap-6 py-12">
+        <p className="text-muted-foreground text-center text-lg">
+          이 영상은 설교가 아닌 것으로 판단되었습니다.
+        </p>
+        <p className="text-muted-foreground text-center text-sm">
+          기독교 설교 영상만 요약할 수 있습니다.
+        </p>
+        <Link href="/" className="text-primary hover:underline">
+          다른 영상 시도하기
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="flex w-full flex-col">
       <article className="prose prose-neutral prose-lg dark:prose-invert max-w-none">

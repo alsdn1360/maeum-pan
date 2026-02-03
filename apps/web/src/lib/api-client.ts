@@ -1,8 +1,13 @@
+const BASE_URL =
+  typeof window === 'undefined'
+    ? process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL
+    : process.env.NEXT_PUBLIC_API_BASE_URL;
+
 const request = async <T>(
   endpoint: string,
   options: RequestInit,
 ): Promise<T> => {
-  const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}${endpoint}`;
+  const url = `${BASE_URL}${endpoint}`;
 
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },

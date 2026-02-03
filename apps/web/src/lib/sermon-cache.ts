@@ -4,6 +4,7 @@ export interface SermonCacheData {
   sermonDate: string;
   originalUrl: string;
   savedAt: string;
+  isNonSermon?: boolean;
 }
 
 const cache = new Map<string, SermonCacheData>();

@@ -23,3 +23,4 @@ class SermonResponse(BaseModel):
     video_id: str = Field(..., serialization_alias="videoId")
     summary: str
     sermon_date: str = Field(..., serialization_alias="sermonDate")  # YYYY-MM-DD
+    is_non_sermon: bool = Field(False, serialization_alias="isNonSermon")
