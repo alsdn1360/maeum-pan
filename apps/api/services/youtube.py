@@ -2,7 +2,6 @@ import logging
 import os
 import re
 
-import yt_dlp
 from fastapi import HTTPException
 from starlette.concurrency import run_in_threadpool
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -35,38 +34,6 @@ class YouTubeService:
             return match.group(1)
 
         raise ValueError(f"유효하지 않은 YouTube URL 또는 비디오 ID입니다: {url_or_id}")
-
-    @staticmethod
-    def get_video_upload_date_sync(video_id: str) -> str:
-        """
-        YouTube 영상의 업로드일(설교일)을 YYYY-MM-DD 형식으로 반환합니다.
-        (동기 실행)
-        """
-        try:
-            ydl_opts = {"quiet": True, "no_warnings": True}
-
-            proxy_url = os.getenv("YOUTUBE_PROXY_URL")
-            if proxy_url:
-                ydl_opts["proxy"] = proxy_url
-
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(
-                    f"https://www.youtube.com/watch?v={video_id}",
-                    download=False,
-                )
-                upload_date = info.get("upload_date")
-                if upload_date and len(upload_date) >= 8:
-                    return f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:8]}"
-        except Exception as e:
-            logger.warning("영상 업로드일 조회 실패 (video_id=%s): %s", video_id, e)
-        return ""
-
-    @classmethod
-    async def get_video_upload_date(cls, video_id: str) -> str:
-        """
-        YouTube 영상의 업로드일을 비동기로 수행합니다.
-        """
-        return await run_in_threadpool(cls.get_video_upload_date_sync, video_id)
 
     @staticmethod
     def fetch_transcript_sync(

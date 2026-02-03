@@ -1,6 +1,7 @@
 import logging
 
 from google import genai
+from google.genai.errors import ServerError
 from starlette.concurrency import run_in_threadpool
 
 from constants.prompts import SERMON_SUMMARY_PROMPT
@@ -8,6 +9,13 @@ from core.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+
+class GeminiOverloadedError(Exception):
+    """Gemini API가 과부하 상태일 때 발생하는 예외"""
+
+    pass
+
 
 client = None
 if settings.GEMINI_API_KEY:
@@ -63,6 +71,12 @@ class GeminiService:
             logger.warning("Gemini 응답에 텍스트가 없습니다. Response: %s", response)
             return SummarizeResult("")
 
+        except ServerError as e:
+            if e.code == 503:
+                logger.error("Gemini 서버 과부하: %s", e)
+                raise GeminiOverloadedError("Gemini API가 과부하 상태입니다")
+            logger.exception("Gemini 서버 오류: %s", e)
+            raise GeminiOverloadedError("Gemini API 서버 오류")
         except Exception as e:
             logger.exception("Gemini 요약 실패: %s", e)
             return SummarizeResult("")

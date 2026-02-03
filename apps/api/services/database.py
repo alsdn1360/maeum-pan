@@ -1,5 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, Column, DateTime, String, Text, func, select
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -18,7 +19,6 @@ class SermonSummary(Base):
 
     video_id = Column(String, primary_key=True)
     summary = Column(Text, nullable=False)
-    sermon_date = Column(String, nullable=False)
     is_non_sermon = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
@@ -83,8 +83,8 @@ class SermonCacheService:
                     return {
                         "video_id": row.video_id,
                         "summary": row.summary,
-                        "sermon_date": row.sermon_date,
                         "is_non_sermon": row.is_non_sermon,
+                        "created_at": row.created_at,
                     }
                 return None
         except Exception as e:
@@ -93,15 +93,16 @@ class SermonCacheService:
 
     @classmethod
     async def save_sermon(
-        cls, video_id: str, summary: str, sermon_date: str, is_non_sermon: bool = False
-    ) -> bool:
+        cls, video_id: str, summary: str, is_non_sermon: bool = False
+    ) -> datetime | None:
+        """설교 저장 후 created_at 반환"""
         if not async_session_factory:
-            return False
+            return None
 
         try:
             async with get_db_session() as session:
                 if not session:
-                    return False
+                    return None
                 result = await session.execute(
                     select(SermonSummary).where(SermonSummary.video_id == video_id)
                 )
@@ -109,17 +110,18 @@ class SermonCacheService:
 
                 if existing:
                     existing.summary = summary
-                    existing.sermon_date = sermon_date
                     existing.is_non_sermon = is_non_sermon
+                    return existing.created_at
                 else:
+                    now = datetime.now(UTC)
                     new_sermon = SermonSummary(
                         video_id=video_id,
                         summary=summary,
-                        sermon_date=sermon_date,
                         is_non_sermon=is_non_sermon,
+                        created_at=now,
                     )
                     session.add(new_sermon)
-                return True
+                    return now
         except Exception as e:
             logger.warning("DB 저장 실패 (video_id=%s): %s", video_id, e)
-            return False
+            return None
