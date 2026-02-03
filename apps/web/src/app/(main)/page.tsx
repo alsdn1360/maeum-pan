@@ -18,21 +18,14 @@ const MainPage = () => {
           </div>
 
           <LinkInputForm />
-
-          <p className="text-muted-foreground text-center text-xs">
-            자막이 없는 영상은 지원하지 않습니다
-          </p>
         </div>
       </div>
 
-      <div className="absolute right-0 bottom-16 left-0 flex justify-center px-4 sm:bottom-12">
+      <div className="absolute right-0 bottom-12 left-0 flex justify-center px-4">
         <SermonList />
       </div>
 
-      <footer className="absolute right-0 bottom-4 left-0 flex flex-col items-center justify-center px-4 sm:flex-row sm:justify-between">
-        <p className="text-muted-foreground text-xs">
-          저장된 설교는 브라우저에 보관되며, 방문 기록 삭제 시 초기화됩니다
-        </p>
+      <footer className="absolute right-0 bottom-4 left-0 flex flex-col items-center justify-center px-4">
         <p className="text-muted-foreground text-xs">
           © 2026 마음판. All rights reserved.
         </p>

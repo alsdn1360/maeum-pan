@@ -4,20 +4,18 @@ import { useLayoutEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 import Loading from '@/app/loading';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { APP_PATH } from '@/constants/app-path';
 import { type SermonCacheData, takeSermonCache } from '@/lib/sermon-cache';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import remarkGfm from 'remark-gfm';
+
+import { SermonDeleteDialog } from './sermon-delete-dialog';
 
 interface SermonBodyProps {
   videoId: string;
 }
 
 export const SermonBody = ({ videoId }: SermonBodyProps) => {
-  const router = useRouter();
   const [data, setData] = useState<SermonCacheData | null>(null);
   const [isResolved, setIsResolved] = useState(false);
 
@@ -86,20 +84,7 @@ export const SermonBody = ({ videoId }: SermonBodyProps) => {
           </p>
         </div>
 
-        <Button
-          variant="destructive"
-          onClick={() => {
-            if (
-              confirm(
-                '정말 삭제하시겠습니까? 삭제된 말씀은 복구할 수 없습니다.',
-              )
-            ) {
-              localStorage.removeItem(`sermon-${videoId}`);
-              router.replace(APP_PATH.MAIN);
-            }
-          }}>
-          삭제하기
-        </Button>
+        <SermonDeleteDialog videoId={videoId} />
       </div>
     </div>
   );

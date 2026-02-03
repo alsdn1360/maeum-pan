@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 
 import { ScrollableList } from './scrollable-list.client';
 import { SermonListItem } from './sermon-list-item';
+import { SermonListTitleDialog } from './sermon-list-title-dialog';
 
 const PAGE_SIZE = 3;
 
@@ -24,7 +25,7 @@ export const SermonList = () => {
   return (
     <div className="flex w-full max-w-sm flex-col gap-2">
       <div className="flex flex-col gap-2">
-        <p className="text-muted-foreground text-xs">새겨진 말씀</p>
+        <SermonListTitleDialog />
 
         <ScrollableList deps={[visibleCount, sermonList]}>
           {visibleSermons.map((sermon) => (
