@@ -33,7 +33,13 @@ export const useSermon = (): UseSermonResult => {
       return responseData;
     } catch (err) {
       console.error('설교 영상 요청 오류:', err);
-      setError('설교 영상을 가져오는데 실패했습니다');
+
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : '설교 영상을 가져오는데 실패했습니다';
+
+      setError(errorMessage);
 
       return null;
     } finally {

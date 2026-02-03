@@ -1,7 +1,7 @@
 import logging
+import os
 import re
 
-import yt_dlp
 from fastapi import HTTPException
 from starlette.concurrency import run_in_threadpool
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -10,6 +10,7 @@ from youtube_transcript_api._errors import (
     TranscriptsDisabled,
     VideoUnavailable,
 )
+from youtube_transcript_api.proxies import WebshareProxyConfig
 
 logger = logging.getLogger(__name__)
 
@@ -35,45 +36,27 @@ class YouTubeService:
         raise ValueError(f"유효하지 않은 YouTube URL 또는 비디오 ID입니다: {url_or_id}")
 
     @staticmethod
-    def get_video_upload_date_sync(video_id: str) -> str:
-        """
-        YouTube 영상의 업로드일(설교일)을 YYYY-MM-DD 형식으로 반환합니다.
-        (동기 실행)
-        """
-        try:
-            ydl_opts = {"quiet": True, "no_warnings": True}
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(
-                    f"https://www.youtube.com/watch?v={video_id}",
-                    download=False,
-                )
-                upload_date = info.get("upload_date")  # YYYYMMDD
-                if upload_date and len(upload_date) >= 8:
-                    return f"{upload_date[:4]}-{upload_date[4:6]}-{upload_date[6:8]}"
-        except Exception as e:
-            logger.warning("영상 업로드일 조회 실패 (video_id=%s): %s", video_id, e)
-        return ""
-
-    @classmethod
-    async def get_video_upload_date(cls, video_id: str) -> str:
-        """
-        YouTube 영상의 업로드일을 비동기로 수행합니다.
-        """
-        return await run_in_threadpool(cls.get_video_upload_date_sync, video_id)
-
-    @staticmethod
     def fetch_transcript_sync(
         video_id: str, languages: list[str], preserve_formatting: bool
     ) -> str:
+        proxy_username = os.getenv("WEBSHARE_PROXY_USERNAME")
+        proxy_password = os.getenv("WEBSHARE_PROXY_PASSWORD")
+        proxy_config = None
+        if proxy_username and proxy_password:
+            proxy_config = WebshareProxyConfig(
+                proxy_username=proxy_username,
+                proxy_password=proxy_password,
+            )
+
         try:
-            ytt_api = YouTubeTranscriptApi()
+            ytt_api = YouTubeTranscriptApi(proxy_config=proxy_config)
             transcript = ytt_api.fetch(
                 video_id,
                 languages=languages,
                 preserve_formatting=preserve_formatting,
             )
-            # 전체 텍스트 생성
             return " ".join(segment.text for segment in transcript)
+
         except TranscriptsDisabled:
             raise HTTPException(
                 status_code=403,
