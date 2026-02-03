@@ -1,17 +1,17 @@
 import { SermonBody } from './_components/sermon-body.client';
 
-type Props = {
+interface SermonPageProps {
   params: Promise<{
     id: string;
   }>;
-};
+}
 
-const SermonPage = async ({ params }: Props) => {
+const SermonPage = async ({ params }: SermonPageProps) => {
   const { id } = await params;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-4 pt-16">
-      <SermonBody id={id} />
+      <SermonBody videoId={id} />
 
       <footer className="mt-16 w-full pb-4 text-center">
         <p className="text-muted-foreground text-xs leading-relaxed">

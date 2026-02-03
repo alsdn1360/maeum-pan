@@ -6,22 +6,23 @@ import ReactMarkdown from 'react-markdown';
 import Loading from '@/app/loading';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { APP_PATH } from '@/constants/app-path';
 import { type SermonCacheData, takeSermonCache } from '@/lib/sermon-cache';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import remarkGfm from 'remark-gfm';
 
-type Props = {
-  id: string;
-};
+interface SermonBodyProps {
+  videoId: string;
+}
 
-export const SermonBody = ({ id }: Props) => {
+export const SermonBody = ({ videoId }: SermonBodyProps) => {
   const router = useRouter();
   const [data, setData] = useState<SermonCacheData | null>(null);
   const [isResolved, setIsResolved] = useState(false);
 
   useLayoutEffect(() => {
-    const fromCache = takeSermonCache(id);
+    const fromCache = takeSermonCache(videoId);
 
     if (fromCache) {
       // 마운트 직후 외부 저장소에서 초기값만 읽어오는 1회성 동기화
@@ -35,7 +36,7 @@ export const SermonBody = ({ id }: Props) => {
 
     const savedJson =
       typeof window !== 'undefined'
-        ? localStorage.getItem(`sermon-${id}`)
+        ? localStorage.getItem(`sermon-${videoId}`)
         : null;
 
     if (savedJson) {
@@ -47,7 +48,7 @@ export const SermonBody = ({ id }: Props) => {
     }
 
     setIsResolved(true);
-  }, [id]);
+  }, [videoId]);
 
   if (!isResolved) {
     return <Loading />;
@@ -81,7 +82,7 @@ export const SermonBody = ({ id }: Props) => {
             {data.originalUrl}
           </Link>
           <p className="text-muted-foreground text-sm">
-            {data.sermonDate || '날짜 미상'}
+            {data.sermonDate || '날짜 미상'} 설교
           </p>
         </div>
 
@@ -93,8 +94,8 @@ export const SermonBody = ({ id }: Props) => {
                 '정말 삭제하시겠습니까? 삭제된 말씀은 복구할 수 없습니다.',
               )
             ) {
-              localStorage.removeItem(`sermon-${id}`);
-              router.replace('/');
+              localStorage.removeItem(`sermon-${videoId}`);
+              router.replace(APP_PATH.MAIN);
             }
           }}>
           삭제하기

@@ -1,115 +1,36 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 
+import { useSermonList } from '@/app/(main)/_hooks/use-sermon-list';
 import { Button } from '@/components/ui/button';
-import { type SermonCacheData } from '@/lib/sermon-cache';
-import Link from 'next/link';
+
+import { ScrollableList } from './scrollable-list.client';
+import { SermonListItem } from './sermon-list-item';
 
 const PAGE_SIZE = 3;
 
-type SermonItem = {
-  id: string;
-  data: SermonCacheData;
-};
-
 export const SermonList = () => {
-  const [sermons, setSermons] = useState<SermonItem[]>([]);
+  const sermonList = useSermonList();
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [canScrollMore, setCanScrollMore] = useState(false);
-  const listRef = useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      const items: SermonItem[] = [];
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-
-        if (key?.startsWith('sermon-')) {
-          const id = key.replace('sermon-', '');
-          const json = localStorage.getItem(key);
-
-          if (json) {
-            try {
-              const data = JSON.parse(json) as SermonCacheData;
-
-              items.push({ id, data });
-            } catch {}
-          }
-        }
-      }
-
-      items.sort(
-        (a, b) =>
-          new Date(b.data.savedAt).getTime() -
-          new Date(a.data.savedAt).getTime(),
-      );
-
-      setSermons(items);
-    }, 0);
-
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleScroll = () => {
-    if (listRef.current) {
-      const { scrollTop, scrollHeight, clientHeight } = listRef.current;
-
-      setIsScrolled(scrollTop > 0);
-      setCanScrollMore(scrollTop + clientHeight < scrollHeight - 1);
-    }
-  };
-
-  useEffect(() => {
-    handleScroll();
-  }, [visibleCount, sermons]);
-
-  if (sermons.length === 0) {
+  if (sermonList.length === 0) {
     return null;
   }
 
-  const visibleSermons = sermons.slice(0, visibleCount);
-  const hasMore = visibleCount < sermons.length;
+  const visibleSermons = sermonList.slice(0, visibleCount);
+  const hasMore = visibleCount < sermonList.length;
 
   return (
     <div className="flex w-full max-w-sm flex-col gap-2">
       <div className="flex flex-col gap-2">
         <p className="text-muted-foreground text-xs">새겨진 말씀</p>
 
-        <div className="relative">
-          <div
-            className={`from-background pointer-events-none absolute inset-x-0 top-0 z-10 h-8 bg-linear-to-b to-transparent transition-opacity ${
-              isScrolled ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-          <div
-            className={`from-background pointer-events-none absolute inset-x-0 bottom-0 z-10 h-8 bg-linear-to-t to-transparent transition-opacity ${
-              canScrollMore ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
-          <ul
-            ref={listRef}
-            onScroll={handleScroll}
-            className="flex max-h-48 flex-col overflow-y-auto">
-            {visibleSermons.map(({ id, data }) => (
-              <li key={id}>
-                <Link
-                  href={`/sermon/${id}`}
-                  className="text-muted-foreground hover:text-foreground flex items-center justify-between gap-2 py-2 transition-colors">
-                  <span className="line-clamp-1 max-w-64 truncate text-sm">
-                    {data.summary.split('\n')[0]?.replace(/^#*\s*/, '') ||
-                      '제목 없음'}
-                  </span>
-                  <span className="text-muted-foreground text-xs">
-                    {data.sermonDate || '날짜 미상'}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ScrollableList deps={[visibleCount, sermonList]}>
+          {visibleSermons.map((sermon) => (
+            <SermonListItem key={sermon.id} sermon={sermon} />
+          ))}
+        </ScrollableList>
       </div>
 
       {hasMore && (
@@ -118,7 +39,7 @@ export const SermonList = () => {
           size="sm"
           onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
           className="text-muted-foreground self-center text-xs">
-          더보기 ({sermons.length - visibleCount}개 더)
+          더보기 ({sermonList.length - visibleCount}개 더)
         </Button>
       )}
     </div>

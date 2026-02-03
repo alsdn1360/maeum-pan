@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
-class TranscriptRequest(BaseModel):
+class SermonRequest(BaseModel):
     """자막 요청 스키마"""
 
     url: str
@@ -16,7 +16,7 @@ class TranscriptRequest(BaseModel):
         return v.strip()
 
 
-class TranscriptResponse(BaseModel):
+class SermonResponse(BaseModel):
     """자막 요약 응답 스키마 (camelCase)"""
 
     model_config = ConfigDict(serialize_by_alias=True)

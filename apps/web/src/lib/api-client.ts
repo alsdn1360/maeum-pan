@@ -3,10 +3,12 @@ const request = async <T>(
   options: RequestInit,
 ): Promise<T> => {
   const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}${endpoint}`;
+
   const res = await fetch(url, {
     headers: { 'Content-Type': 'application/json' },
     ...options,
   });
+
   const data = await res.json();
 
   if (!res.ok) {
@@ -23,4 +25,15 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  put: <T>(endpoint: string, body: unknown) =>
+    request<T>(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify(body),
+    }),
+  patch: <T>(endpoint: string, body: unknown) =>
+    request<T>(endpoint, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
 };

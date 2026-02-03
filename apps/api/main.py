@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import get_settings
-from routers import transcript
+from routers import sermon, transcript
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -28,6 +28,7 @@ app.add_middleware(
 )
 
 # 라우터 등록
+app.include_router(sermon.router, tags=["Sermon"])
 app.include_router(transcript.router, tags=["Transcript"])
 
 

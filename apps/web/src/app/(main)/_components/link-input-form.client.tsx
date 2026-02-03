@@ -5,22 +5,24 @@ import { useRef, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
+import { APP_PATH } from '@/constants/app-path';
+import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { type SermonCacheData, setSermonCache } from '@/lib/sermon-cache';
 import { SentIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useRouter } from 'next/navigation';
 
-import { useTranscript } from '../_hooks/useTranscript';
+import { useSermon } from '../_hooks/use-sermon';
 
 const sendIcon = <HugeiconsIcon icon={SentIcon} />;
 const loadingIcon = <Spinner />;
 
 export const LinkInputForm = () => {
   const router = useRouter();
-  const [isTransitioning, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isTransitioning, startTransition] = useTransition();
 
-  const { requestTranscript, isLoading } = useTranscript();
+  const { requestSermon, isLoading } = useSermon();
 
   const isPending = isLoading || isTransitioning;
 
@@ -39,7 +41,7 @@ export const LinkInputForm = () => {
           return;
         }
 
-        const response = await requestTranscript(url);
+        const response = await requestSermon(url);
 
         if (response) {
           const { videoId, summary, sermonDate } = response;
@@ -48,7 +50,7 @@ export const LinkInputForm = () => {
             return;
           }
 
-          const storageData: SermonCacheData = {
+          const sermonStorageData: SermonCacheData = {
             videoId,
             summary,
             sermonDate,
@@ -57,13 +59,20 @@ export const LinkInputForm = () => {
           };
 
           // 상세 페이지에서 즉시 표시할 수 있도록 캐시에 넣고 이동
-          setSermonCache(videoId, storageData);
+          setSermonCache(videoId, sermonStorageData);
+
           startTransition(() => {
             localStorage.setItem(
               `sermon-${videoId}`,
-              JSON.stringify(storageData),
+              JSON.stringify(sermonStorageData),
             );
-            router.push(`/sermon/${videoId}`);
+
+            const sermonPath = buildUrlWithParams({
+              url: APP_PATH.SERMON,
+              pathParams: { videoId },
+            });
+
+            router.push(sermonPath);
           });
         }
       }}

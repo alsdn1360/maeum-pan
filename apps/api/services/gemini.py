@@ -81,7 +81,6 @@ class GeminiService:
 
         try:
             # 비동기 실행을 위해 threadpool 사용
-            # google-genai SDK는 models.generate_content 메서드를 사용
             response = await run_in_threadpool(
                 client.models.generate_content,
                 model="gemini-flash-latest",
