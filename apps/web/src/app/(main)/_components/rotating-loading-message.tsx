@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const LOADING_MESSAGES = [
   '목사님의 말씀을 귀담아듣고 있습니다',
@@ -11,7 +11,7 @@ const LOADING_MESSAGES = [
   '잠시만 기다려주세요',
 ];
 
-const ROTATION_INTERVAL = 4000;
+const ROTATION_INTERVAL = 2500;
 
 export const RotatingLoadingMessage = () => {
   const [msgIndex, setMsgIndex] = useState(0);
@@ -25,29 +25,19 @@ export const RotatingLoadingMessage = () => {
   }, []);
 
   return (
-    <motion.p
-      key={LOADING_MESSAGES[msgIndex]}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{
-        opacity: [1, 0.5, 1],
-        y: 0,
-      }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{
-        y: {
-          duration: 0.5,
-          ease: 'easeOut',
-        },
-        opacity: {
-          duration: 2,
-          repeat: Infinity,
-          repeatType: 'reverse',
-          ease: 'easeInOut',
-          delay: 0.1,
-        },
-      }}
-      className="text-muted-foreground absolute inset-x-0 top-0 text-xs font-bold">
-      {LOADING_MESSAGES[msgIndex]}
-    </motion.p>
+    <AnimatePresence>
+      <motion.p
+        key={LOADING_MESSAGES[msgIndex]}
+        className="text-muted-foreground absolute inset-x-0 top-0 text-xs font-bold"
+        initial={{ opacity: 0, y: 12, filter: 'blur(1px)' }}
+        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, y: -12, filter: 'blur(1px)' }}
+        transition={{
+          duration: 0.6,
+          ease: [0.16, 1, 0.3, 1],
+        }}>
+        {LOADING_MESSAGES[msgIndex]}
+      </motion.p>
+    </AnimatePresence>
   );
 };

@@ -100,6 +100,8 @@ export const LinkInputForm = () => {
         }}
         className="mx-auto flex w-full max-w-xl items-center gap-1.5">
         <Input
+          id="sermon-youtube-url"
+          aria-describedby="sermon-youtube-url-description"
           ref={inputRef}
           type="url"
           placeholder="예시: https://www.youtube.com/watch?v=..."
