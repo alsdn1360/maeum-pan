@@ -47,8 +47,8 @@ export const SermonListSheet = () => {
             </SheetDescription>
           </SheetHeader>
           {sortedSermonList.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              아직 새겨진 마음이 없습니다
+            <p className="text-muted-foreground text-sm px-6">
+              아직 새겨진 말씀이 없습니다
             </p>
           ) : (
             <ul className="px-6 pb-6">
