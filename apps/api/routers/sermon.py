@@ -15,8 +15,22 @@ CACHE_DELAY_MIN = 10
 CACHE_DELAY_MAX = 15
 
 
+@router.get("/sermon/{video_id}", response_model=SermonResponse)
+async def get_sermon_by_id(video_id: str):
+    cached = await SermonCacheService.get_cached_sermon(video_id)
+    if not cached:
+        raise HTTPException(status_code=404, detail="해당 설교를 찾을 수 없습니다.")
+
+    return SermonResponse(
+        video_id=cached["video_id"],
+        summary=cached["summary"],
+        created_at=cached["created_at"],
+        is_non_sermon=cached.get("is_non_sermon", False),
+    )
+
+
 @router.post("/sermon", response_model=SermonResponse)
-async def get_sermon(request: SermonRequest):
+async def create_sermon(request: SermonRequest):
     """
     YouTube 영상의 자막을 추출한 뒤, 요약합니다.
 

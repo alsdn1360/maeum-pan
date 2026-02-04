@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from routers.sermon import get_sermon
+from routers.sermon import create_sermon
 from schemas.sermon import SermonRequest
 
 router = APIRouter()
@@ -27,4 +27,4 @@ async def get_transcript_by_id(
         preserve_formatting=preserve_formatting,
     )
 
-    return await get_sermon(request)
+    return await create_sermon(request)

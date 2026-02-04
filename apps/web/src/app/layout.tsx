@@ -1,6 +1,7 @@
 import './globals.css';
 
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import KakaoScript from '@/lib/kakao-script';
 import type { Metadata } from 'next';
 import { Gowun_Batang } from 'next/font/google';
 
@@ -46,6 +47,7 @@ const RootLayout = ({
           {children}
         </ThemeProvider>
       </body>
+      <KakaoScript />
     </html>
   );
 };
