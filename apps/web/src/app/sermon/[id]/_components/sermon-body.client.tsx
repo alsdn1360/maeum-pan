@@ -1,9 +1,11 @@
 'use client';
 
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
+import { getSermon } from '@/api/main/get-sermon/get';
 import Loading from '@/app/loading';
+import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { type SermonCacheData, takeSermonCache } from '@/lib/sermon-cache';
 import Link from 'next/link';
@@ -18,15 +20,22 @@ interface SermonBodyProps {
 export const SermonBody = ({ videoId }: SermonBodyProps) => {
   const [data, setData] = useState<SermonCacheData | null>(null);
   const [isResolved, setIsResolved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleShare = async () => {
+    const url = window.location.href;
+
+    await navigator.clipboard.writeText(url);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   useLayoutEffect(() => {
     const fromCache = takeSermonCache(videoId);
 
     if (fromCache) {
-      // 마운트 직후 외부 저장소에서 초기값만 읽어오는 1회성 동기화
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- external store hydration
       setData(fromCache);
-
       setIsResolved(true);
 
       return;
@@ -40,39 +49,54 @@ export const SermonBody = ({ videoId }: SermonBodyProps) => {
     if (savedJson) {
       try {
         setData(JSON.parse(savedJson));
+        setIsResolved(true);
       } catch {
-        // ignore
+        /* empty */
       }
     }
-
-    setIsResolved(true);
   }, [videoId]);
+
+  useEffect(() => {
+    if (isResolved || data) {
+      return;
+    }
+
+    const fetchFromBackend = async () => {
+      try {
+        const response = await getSermon(videoId);
+
+        const sermonData: SermonCacheData = {
+          videoId: response.videoId,
+          summary: response.summary,
+          createdAt: response.createdAt,
+          originalUrl: `https://www.youtube.com/watch?v=${response.videoId}`,
+          savedAt: new Date().toISOString(),
+          isNonSermon: response.isNonSermon,
+        };
+
+        localStorage.setItem(`sermon-${videoId}`, JSON.stringify(sermonData));
+        setData(sermonData);
+      } catch (e) {
+        setError(
+          e instanceof Error ? e.message : '말씀을 불러오는데 실패했습니다.',
+        );
+      } finally {
+        setIsResolved(true);
+      }
+    };
+
+    fetchFromBackend();
+  }, [videoId, isResolved, data]);
 
   if (!isResolved) {
     return <Loading />;
   }
 
-  if (!data) {
+  if (error || !data) {
     return (
-      <p className="text-muted-foreground text-center">
-        아직 마음판에 새겨진 말씀이 없습니다.
+      <p className="text-muted-foreground my-auto h-full text-center">
+        아직 마음판에 새겨진 말씀이 없습니다
       </p>
-    );
-  }
-
-  if (data.isNonSermon) {
-    return (
-      <div className="flex flex-col items-center gap-6 py-12">
-        <p className="text-muted-foreground text-center text-lg">
-          이 영상은 설교가 아닌 것으로 판단되었습니다.
-        </p>
-        <p className="text-muted-foreground text-center text-sm">
-          기독교 설교 영상만 요약할 수 있습니다.
-        </p>
-        <Link href="/" className="text-primary hover:underline">
-          다른 영상 시도하기
-        </Link>
-      </div>
     );
   }
 
@@ -103,7 +127,12 @@ export const SermonBody = ({ videoId }: SermonBodyProps) => {
           </p>
         </div>
 
-        <SermonDeleteDialog videoId={videoId} />
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleShare}>
+            {copied ? '복사됨!' : '링크 공유'}
+          </Button>
+          <SermonDeleteDialog videoId={videoId} />
+        </div>
       </div>
     </div>
   );

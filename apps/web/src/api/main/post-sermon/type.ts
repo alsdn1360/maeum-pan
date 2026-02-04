@@ -1,11 +1,11 @@
-export interface FetchSermonResponse {
+export interface PostSermonResponse {
   videoId: string;
   summary: string;
   createdAt: string;
   isNonSermon: boolean;
 }
 
-export interface FetchSermonRequest {
+export interface PostSermonRequest {
   url: string;
   languages?: string[];
 }

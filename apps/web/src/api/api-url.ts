@@ -1,3 +1,6 @@
 export const API_URL = {
-  SERMON: '/sermon',
+  SERMON: {
+    CREATE: '/sermon',
+    GET: '/sermon/{videoId}',
+  },
 } as const;
