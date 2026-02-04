@@ -8,7 +8,7 @@ import { Spinner } from '@/components/ui/spinner';
 import { APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { type SermonCacheData, setSermonCache } from '@/lib/sermon-cache';
-import { SentIcon } from '@hugeicons/core-free-icons';
+import { SparklesIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useRouter } from 'next/navigation';
 
@@ -20,6 +20,8 @@ const ERROR_MESSAGES = {
 } as const;
 
 const ERROR_CLEAR_DELAY = 5000;
+
+const sparklesIcon = <HugeiconsIcon icon={SparklesIcon} />;
 
 export const LinkInputForm = () => {
   const router = useRouter();
@@ -116,7 +118,7 @@ export const LinkInputForm = () => {
           required
         />
         <Button type="submit" size="icon-lg" disabled={isPending}>
-          {isPending ? <Spinner /> : <HugeiconsIcon icon={SentIcon} />}
+          {isPending ? <Spinner /> : sparklesIcon}
         </Button>
       </form>
 
