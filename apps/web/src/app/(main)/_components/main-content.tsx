@@ -1,4 +1,4 @@
-import { LinkInputForm } from './link-input-form.client';
+import { LinkInputForm } from './link-input-form';
 
 export const MainContent = () => {
   return (

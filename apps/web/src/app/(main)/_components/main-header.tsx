@@ -1,4 +1,4 @@
-import { SermonListSheet } from './sermon-list-sheet.client';
+import { SermonListSheet } from './sermon-list-sheet';
 
 export const MainHeader = () => {
   return (

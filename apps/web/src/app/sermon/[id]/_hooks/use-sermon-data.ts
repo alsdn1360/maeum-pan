@@ -15,23 +15,23 @@ export const useSermonData = (videoId: string): UseSermonDataResult => {
   const [error, setError] = useState<string | null>(null);
 
   useLayoutEffect(() => {
-    const fromCache = takeSermonCache(videoId);
+    const sermonFromCache = takeSermonCache(videoId);
 
-    if (fromCache) {
-      setData(fromCache);
+    if (sermonFromCache) {
+      setData(sermonFromCache);
       setIsResolved(true);
 
       return;
     }
 
-    const savedJson =
+    const sermonFromLocalStorage =
       typeof window !== 'undefined'
         ? localStorage.getItem(`sermon-${videoId}`)
         : null;
 
-    if (savedJson) {
+    if (sermonFromLocalStorage) {
       try {
-        setData(JSON.parse(savedJson));
+        setData(JSON.parse(sermonFromLocalStorage));
         setIsResolved(true);
       } catch {
         /* empty */

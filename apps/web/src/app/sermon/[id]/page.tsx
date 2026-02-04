@@ -1,6 +1,6 @@
-import { SermonContent } from './_components/sermon-content.client';
+import { SermonContent } from './_components/sermon-content';
 import { SermonFooter } from './_components/sermon-footer';
-import { SermonHeader } from './_components/sermon-header.client';
+import { SermonHeader } from './_components/sermon-header';
 
 interface SermonPageProps {
   params: Promise<{

@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { APP_PATH } from '@/constants/app-path';
+import { extractSermonTitle } from '@/lib/extract-sermon-title';
+import { takeSermonCache } from '@/lib/sermon-cache';
 import { cn } from '@/lib/utils';
 import { ArrowLeft02Icon, Share01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -19,7 +21,6 @@ const arrowLeftIcon = <HugeiconsIcon icon={ArrowLeft02Icon} />;
 const shareIcon = <HugeiconsIcon icon={Share01Icon} />;
 
 export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
-  const [copied, setCopied] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
@@ -34,12 +35,38 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
     };
   }, []);
 
-  const handleShare = async () => {
+  const handleShare = () => {
+    const { Kakao } = window;
     const url = window.location.href;
 
-    await navigator.clipboard.writeText(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const sermonFromCache = takeSermonCache(videoId);
+
+    let title;
+
+    if (sermonFromCache) {
+      title = extractSermonTitle({ summary: sermonFromCache.summary });
+    } else {
+      const sermonFromLocalStorage =
+        typeof window !== 'undefined'
+          ? localStorage.getItem(`sermon-${videoId}`)
+          : null;
+
+      if (sermonFromLocalStorage) {
+        const sermon = JSON.parse(sermonFromLocalStorage);
+
+        title = extractSermonTitle({ summary: sermon.summary });
+      }
+    }
+
+    Kakao.Share.sendDefault({
+      objectType: 'text',
+      text: `마음판 : ${title}`,
+      link: {
+        mobileWebUrl: url,
+        webUrl: url,
+      },
+      buttonTitle: '말씀 보기',
+    });
   };
 
   return (
@@ -60,9 +87,7 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
       <div className="flex gap-2">
         <Button variant="outline" size="responsive-icon" onClick={handleShare}>
           {shareIcon}
-          <span className="hidden sm:block">
-            {copied ? '링크 복사됨' : '말씀 공유'}
-          </span>
+          <span className="hidden sm:block">말씀 공유하기</span>
         </Button>
 
         <SermonDeleteDialog videoId={videoId} />
