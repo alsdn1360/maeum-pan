@@ -9,10 +9,16 @@ import { ArrowLeft02Icon, Share01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import Link from 'next/link';
 
+import { SermonDeleteDialog } from './sermon-delete-dialog';
+
+interface SermonHeaderProps {
+  videoId: string;
+}
+
 const arrowLeftIcon = <HugeiconsIcon icon={ArrowLeft02Icon} />;
 const shareIcon = <HugeiconsIcon icon={Share01Icon} />;
 
-export const SermonHeader = () => {
+export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
   const [copied, setCopied] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -51,12 +57,16 @@ export const SermonHeader = () => {
         <span className="hidden sm:block">뒤로가기</span>
       </Button>
 
-      <Button variant="outline" size="responsive-icon" onClick={handleShare}>
-        {shareIcon}
-        <span className="hidden sm:block">
-          {copied ? '링크 복사됨' : '말씀 공유'}
-        </span>
-      </Button>
+      <div className="flex gap-2">
+        <Button variant="outline" size="responsive-icon" onClick={handleShare}>
+          {shareIcon}
+          <span className="hidden sm:block">
+            {copied ? '링크 복사됨' : '말씀 공유'}
+          </span>
+        </Button>
+
+        <SermonDeleteDialog videoId={videoId} />
+      </div>
     </header>
   );
 };

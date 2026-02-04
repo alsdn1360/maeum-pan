@@ -13,7 +13,7 @@ const SermonPage = async ({ params }: SermonPageProps) => {
 
   return (
     <main className="flex min-h-screen w-full flex-col">
-      <SermonHeader />
+      <SermonHeader videoId={id} />
 
       <SermonContent videoId={id} />
 

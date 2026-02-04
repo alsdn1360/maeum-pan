@@ -1,8 +1,6 @@
 import { formatDate } from '@/lib/format-date';
 import Link from 'next/link';
 
-import { SermonDeleteDialog } from './sermon-delete-dialog';
-
 interface SermonContentActionsProps {
   originalUrl: string;
   createdAt: string;
@@ -12,24 +10,21 @@ interface SermonContentActionsProps {
 export const SermonContentActions = ({
   originalUrl,
   createdAt,
-  videoId,
 }: SermonContentActionsProps) => {
   return (
-    <div className="flex w-full flex-col items-end justify-between gap-8">
-      <div className="flex flex-col items-end gap-1">
+    <div className="flex w-full flex-col items-start justify-between gap-8">
+      <div className="flex flex-col items-start gap-1">
         <Link
           href={originalUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-muted-foreground hover:text-foreground ml-4 line-clamp-1 text-sm break-all transition-colors">
-          {originalUrl}
+          className="text-muted-foreground hover:text-foreground line-clamp-1 text-sm break-all transition-colors">
+          설교 원본: {originalUrl}
         </Link>
         <p className="text-muted-foreground text-sm">
           마음에 담은 날: {formatDate({ dateString: createdAt })}
         </p>
       </div>
-
-      <SermonDeleteDialog videoId={videoId} />
     </div>
   );
 };
