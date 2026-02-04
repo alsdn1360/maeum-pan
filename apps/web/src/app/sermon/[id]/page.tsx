@@ -16,7 +16,9 @@ const SermonPage = async ({ params }: SermonPageProps) => {
     <main className="flex min-h-screen w-full flex-col">
       <SermonHeader videoId={id} />
 
-      <div id={SERMON_CAPTURE_AREA_ID} className="bg-background">
+      <div
+        id={SERMON_CAPTURE_AREA_ID}
+        className="bg-background mx-auto w-full max-w-3xl">
         <SermonContent videoId={id} />
 
         <SermonFooter />

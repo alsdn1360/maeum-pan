@@ -27,7 +27,7 @@ export const SermonContent = ({ videoId }: SermonContentProps) => {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-4 py-8">
+    <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
       <SermonBody summary={data.summary} />
 
       <Separator className="my-8" />
