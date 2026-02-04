@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { APP_PATH } from '@/constants/app-path';
+import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
 import { takeSermonCache } from '@/lib/sermon-cache';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,7 @@ interface SermonHeaderProps {
   videoId: string;
 }
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const PADDING_X = 16;
 const PADDING_Y = 32;
 
@@ -59,7 +61,9 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
       const isOverThreshold = window.scrollY > 0;
 
       setIsScrolled((prev) => {
-        if (prev !== isOverThreshold) return isOverThreshold;
+        if (prev !== isOverThreshold) {
+          return isOverThreshold;
+        }
 
         return prev;
       });
@@ -130,17 +134,32 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
       return;
     }
 
-    const url = window.location.href;
+    const url = buildUrlWithParams({
+      url: `${BASE_URL}${APP_PATH.SERMON}`,
+      pathParams: { videoId },
+    });
     const title = getSermonTitle(videoId);
 
     Kakao.Share.sendDefault({
-      objectType: 'text',
-      text: `마음판 : ${title}`,
-      link: {
-        mobileWebUrl: url,
-        webUrl: url,
+      objectType: 'feed',
+      content: {
+        title: '나누고 싶은 말씀이 있어요',
+        description: title,
+        imageUrl: '',
+        link: {
+          mobileWebUrl: url,
+          webUrl: url,
+        },
       },
-      buttonTitle: '말씀 보러가기',
+      buttons: [
+        {
+          title: '말씀 보러가기',
+          link: {
+            mobileWebUrl: url,
+            webUrl: url,
+          },
+        },
+      ],
     });
   };
 
@@ -171,12 +190,16 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
           </span>
         </Button>
 
-        <Button variant="outline" size="responsive-icon" onClick={handleShare}>
+        <Button
+          variant="outline"
+          size="responsive-icon"
+          onClick={handleShare}
+          disabled={isCapturing}>
           {shareIcon}
           <span className="hidden sm:block">말씀 나누기</span>
         </Button>
 
-        <SermonDeleteDialog videoId={videoId} />
+        <SermonDeleteDialog videoId={videoId} isCapturing={isCapturing} />
       </div>
     </header>
   );
