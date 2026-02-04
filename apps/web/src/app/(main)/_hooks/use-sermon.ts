@@ -1,32 +1,32 @@
 import { useState } from 'react';
 
-import { fetchSermon } from '@/api/main/fetch-sermon/fetch';
-import { type FetchSermonResponse } from '@/api/main/fetch-sermon/type';
+import { postSermon } from '@/api/main/post-sermon/post';
+import { type PostSermonResponse } from '@/api/main/post-sermon/type';
 
 interface UseSermonResult {
-  requestSermon: (url: string) => Promise<FetchSermonResponse | null>;
+  requestSermon: (url: string) => Promise<PostSermonResponse | null>;
   isLoading: boolean;
-  data: FetchSermonResponse | null;
+  data: PostSermonResponse | null;
   error: string | null;
   clearError: () => void;
 }
 
 export const useSermon = (): UseSermonResult => {
   const [isLoading, setIsLoading] = useState(false);
-  const [data, setData] = useState<FetchSermonResponse | null>(null);
+  const [data, setData] = useState<PostSermonResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const clearError = () => setError(null);
 
   const requestSermon = async (
     url: string,
-  ): Promise<FetchSermonResponse | null> => {
+  ): Promise<PostSermonResponse | null> => {
     setIsLoading(true);
     setData(null);
     setError(null);
 
     try {
-      const responseData = await fetchSermon({ url });
+      const responseData = await postSermon({ url });
 
       setData(responseData);
 
@@ -34,10 +34,19 @@ export const useSermon = (): UseSermonResult => {
     } catch (err) {
       console.error('설교 영상 요청 오류:', err);
 
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : '설교 영상을 가져오는데 실패했습니다';
+      let errorMessage = '설교 영상을 가져오는데 실패했습니다';
+
+      if (err instanceof Error) {
+        if (
+          err.message.includes('Request timed out') ||
+          err.message.includes('3분 초과')
+        ) {
+          errorMessage =
+            '요청 시간이 초과되었습니다. 영상 길이가 너무 길거나 네트워크 상태가 좋지 않습니다.';
+        } else {
+          errorMessage = err.message;
+        }
+      }
 
       setError(errorMessage);
 

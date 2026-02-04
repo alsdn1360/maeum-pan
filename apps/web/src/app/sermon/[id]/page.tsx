@@ -1,4 +1,7 @@
-import { SermonBody } from './_components/sermon-body.client';
+import { SermonContent } from './_components/sermon-content';
+import { SermonFooter } from './_components/sermon-footer';
+import { SermonHeader } from './_components/sermon-header';
+import { SERMON_CAPTURE_AREA_ID } from './_constants/sermon-capture';
 
 interface SermonPageProps {
   params: Promise<{
@@ -10,18 +13,16 @@ const SermonPage = async ({ params }: SermonPageProps) => {
   const { id } = await params;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-4 pt-16">
-      <SermonBody videoId={id} />
+    <main className="flex min-h-screen w-full flex-col">
+      <SermonHeader videoId={id} />
 
-      <footer className="mt-16 w-full pb-4 text-center">
-        <p className="text-muted-foreground text-xs leading-relaxed">
-          본 요약은 AI가 정리한 묵상 참고 자료입니다.
-          <br />
-          설교자의 의도와 미세한 차이가 있을 수 있으니,{' '}
-          <br className="sm:hidden" />
-          깊은 은혜를 위해 원본 설교를 함께 확인해주세요.
-        </p>
-      </footer>
+      <div
+        id={SERMON_CAPTURE_AREA_ID}
+        className="bg-background mx-auto w-full max-w-3xl">
+        <SermonContent videoId={id} />
+
+        <SermonFooter />
+      </div>
     </main>
   );
 };

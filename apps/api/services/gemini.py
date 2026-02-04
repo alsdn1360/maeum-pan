@@ -55,7 +55,7 @@ class GeminiService:
                 model="gemini-flash-latest",
                 contents=SERMON_SUMMARY_PROMPT + text_to_summarize,
                 config=genai.types.GenerateContentConfig(
-                    temperature=0.2,
+                    temperature=0.1,
                 ),
             )
 

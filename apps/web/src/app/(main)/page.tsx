@@ -1,35 +1,13 @@
-import { LinkInputForm } from './_components/link-input-form.client';
-import { SermonListSheet } from './_components/sermon-list-sheet.client';
+import { MainContent } from './_components/main-content';
+import { MainFooter } from './_components/main-footer';
+import { MainHeader } from './_components/main-header';
 
 const MainPage = () => {
   return (
-    <main className="relative flex h-screen w-full flex-col overflow-hidden">
-      <header className="px-4 py-2">
-        <SermonListSheet />
-      </header>
-
-      <div className="absolute top-1/2 left-1/2 flex w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-8 px-4">
-        <h1 className="text-2xl font-bold">마음판</h1>
-
-        <div className="flex w-full flex-col gap-4">
-          <div className="flex flex-col text-center leading-relaxed">
-            <p>흘러가는 말씀을 마음에 새기세요</p>
-            <p className="text-muted-foreground text-sm">
-              유튜브 설교 영상의 링크를 입력하면,
-              <br className="block sm:hidden" /> 다시 묵상할 수 있도록 정리해
-              드립니다
-            </p>
-          </div>
-
-          <LinkInputForm />
-        </div>
-      </div>
-
-      <footer className="absolute right-0 bottom-4 left-0 flex flex-col items-center justify-center px-4">
-        <p className="text-muted-foreground text-xs">
-          © 2026 마음판. All rights reserved.
-        </p>
-      </footer>
+    <main className="flex h-screen w-full flex-col overflow-hidden">
+      <MainHeader />
+      <MainContent />
+      <MainFooter />
     </main>
   );
 };

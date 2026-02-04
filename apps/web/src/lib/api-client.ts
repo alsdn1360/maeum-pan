@@ -3,24 +3,40 @@ const BASE_URL =
     ? process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 
+const TIMEOUT_MS = 3 * 60 * 1000; // 3분
+
 const request = async <T>(
   endpoint: string,
   options: RequestInit,
 ): Promise<T> => {
   const url = `${BASE_URL}${endpoint}`;
 
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-  const data = await res.json();
+  try {
+    const res = await fetch(url, {
+      headers: { 'Content-Type': 'application/json' },
+      ...options,
+      signal: controller.signal,
+    });
 
-  if (!res.ok) {
-    throw new Error(data.detail || 'Error');
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data.detail || 'Error');
+    }
+
+    return data;
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error('Request timed out (3분 초과)');
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return data;
 };
 
 export const api = {
