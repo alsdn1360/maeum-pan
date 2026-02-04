@@ -1,6 +1,7 @@
 import { SermonContent } from './_components/sermon-content';
 import { SermonFooter } from './_components/sermon-footer';
 import { SermonHeader } from './_components/sermon-header';
+import { SERMON_CAPTURE_AREA_ID } from './_constants/sermon-capture';
 
 interface SermonPageProps {
   params: Promise<{
@@ -15,9 +16,11 @@ const SermonPage = async ({ params }: SermonPageProps) => {
     <main className="flex min-h-screen w-full flex-col">
       <SermonHeader videoId={id} />
 
-      <SermonContent videoId={id} />
+      <div id={SERMON_CAPTURE_AREA_ID} className="bg-background">
+        <SermonContent videoId={id} />
 
-      <SermonFooter />
+        <SermonFooter />
+      </div>
     </main>
   );
 };
