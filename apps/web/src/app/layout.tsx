@@ -8,18 +8,17 @@ import type { Metadata, Viewport } from 'next';
 import { Gowun_Batang } from 'next/font/google';
 
 const siteDescription = '설교의 은혜를 깊이 있게 기록하다';
+const url = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000',
-  ),
+  metadataBase: new URL(url),
   title: '마음판',
   description: siteDescription,
   openGraph: {
     title: '마음판',
     description: siteDescription,
     type: 'website',
-    url: 'http://localhost:3000',
+    url,
     siteName: '마음판',
   },
   twitter: {
