@@ -16,17 +16,27 @@ import { useRouter } from 'next/navigation';
 
 interface SermonDeleteDialogProps {
   videoId: string;
+  isCapturing: boolean;
 }
 
 const deleteIcon = <HugeiconsIcon icon={Delete02Icon} />;
 
-export const SermonDeleteDialog = ({ videoId }: SermonDeleteDialogProps) => {
+export const SermonDeleteDialog = ({
+  videoId,
+  isCapturing,
+}: SermonDeleteDialogProps) => {
   const router = useRouter();
 
   return (
     <AlertDialog>
       <AlertDialogTrigger
-        render={<Button variant="destructive" size="responsive-icon" />}>
+        render={
+          <Button
+            variant="destructive"
+            size="responsive-icon"
+            disabled={isCapturing}
+          />
+        }>
         {deleteIcon}
         <span className="hidden sm:block">비우기</span>
       </AlertDialogTrigger>

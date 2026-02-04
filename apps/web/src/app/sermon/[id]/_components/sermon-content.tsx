@@ -15,12 +15,16 @@ export const SermonContent = ({ videoId }: SermonContentProps) => {
   const { data, isResolved, error } = useSermonData(videoId);
 
   if (!isResolved) {
-    return <Loading />;
+    return (
+      <div className="flex flex-1 items-center justify-center">
+        <Loading />
+      </div>
+    );
   }
 
   if (error || !data) {
     return (
-      <p className="text-muted-foreground my-auto h-full text-center">
+      <p className="flex flex-1 items-center justify-center">
         아직 마음판에 새겨진 말씀이 없습니다
       </p>
     );
