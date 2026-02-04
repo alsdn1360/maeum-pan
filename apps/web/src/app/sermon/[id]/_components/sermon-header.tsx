@@ -56,21 +56,25 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      const isOverThreshold = window.scrollY > 0;
+
+      setIsScrolled((prev) => {
+        if (prev !== isOverThreshold) return isOverThreshold;
+
+        return prev;
+      });
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleCapture = async () => {
     const element = document.getElementById(SERMON_CAPTURE_AREA_ID);
 
     if (!element) {
-      alert('캡처할 말씀을 찾을 수 없습니다.');
+      alert('담을 말씀을 찾을 수 없습니다.');
 
       return;
     }
@@ -78,16 +82,18 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
     setIsCapturing(true);
 
     try {
+      await document.fonts.ready;
+
       const title = getSermonTitle(videoId);
-
       const currentBgColor = window.getComputedStyle(element).backgroundColor;
-
       const width = element.scrollWidth + PADDING_X * 2;
       const height = element.scrollHeight + PADDING_Y * 2;
 
       const dataUrl = await toPng(element, {
+        cacheBust: true,
         width: width,
         height: height,
+        pixelRatio: 2,
 
         style: {
           backgroundColor: currentBgColor,
@@ -97,17 +103,19 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
           height: 'auto',
           maxWidth: 'none',
           transform: 'none',
-        },
+          WebkitFontSmoothing: 'antialiased',
+          fontSmooth: 'antialiased',
+        } as Partial<CSSStyleDeclaration>,
       });
 
       const link = document.createElement('a');
 
-      link.download = `마음판-${title}.png`;
+      link.download = `마음판-말씀 카드-${title}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
       console.error('캡처 실패:', err);
-      alert('말씀을 이미지로 저장하는동안 오류가 발생했습니다.');
+      alert('말씀을 담는 중에 문제가 발생했습니다.');
     } finally {
       setIsCapturing(false);
     }
@@ -115,8 +123,14 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
 
   const handleShare = () => {
     const { Kakao } = window;
-    const url = window.location.href;
 
+    if (!Kakao || !Kakao.Share) {
+      alert('카카오톡 공유 기능을 불러오지 못했습니다.');
+
+      return;
+    }
+
+    const url = window.location.href;
     const title = getSermonTitle(videoId);
 
     Kakao.Share.sendDefault({
@@ -126,7 +140,7 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
         mobileWebUrl: url,
         webUrl: url,
       },
-      buttonTitle: '말씀 보기',
+      buttonTitle: '말씀 보러가기',
     });
   };
 
@@ -159,7 +173,7 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
 
         <Button variant="outline" size="responsive-icon" onClick={handleShare}>
           {shareIcon}
-          <span className="hidden sm:block">은혜 나누기</span>
+          <span className="hidden sm:block">말씀 나누기</span>
         </Button>
 
         <SermonDeleteDialog videoId={videoId} />

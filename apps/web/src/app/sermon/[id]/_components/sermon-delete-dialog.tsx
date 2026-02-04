@@ -28,7 +28,7 @@ export const SermonDeleteDialog = ({ videoId }: SermonDeleteDialogProps) => {
       <AlertDialogTrigger
         render={<Button variant="destructive" size="responsive-icon" />}>
         {deleteIcon}
-        <span className="hidden sm:block">마음판에서 비우기</span>
+        <span className="hidden sm:block">비우기</span>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
