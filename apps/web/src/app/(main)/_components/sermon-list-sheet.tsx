@@ -1,6 +1,7 @@
 'use client';
 
 import { useSermonList } from '@/app/(main)/_hooks/use-sermon-list';
+import { menuIcon } from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -11,14 +12,10 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Menu01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 
 import { SermonListItem } from './sermon-list-item';
 
-const menuIcon = <HugeiconsIcon icon={Menu01Icon} />;
-
-export const SermonListSheet = () => {
+export function SermonListSheet() {
   const sermonList = useSermonList();
 
   const sortedSermonList = [...sermonList].sort(
@@ -47,7 +44,7 @@ export const SermonListSheet = () => {
             </SheetDescription>
           </SheetHeader>
           {sortedSermonList.length === 0 ? (
-            <p className="text-muted-foreground text-sm px-6">
+            <p className="text-muted-foreground px-6 text-sm">
               아직 새겨진 말씀이 없습니다
             </p>
           ) : (
@@ -61,4 +58,4 @@ export const SermonListSheet = () => {
       </SheetContent>
     </Sheet>
   );
-};
+}

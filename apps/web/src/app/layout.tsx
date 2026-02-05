@@ -7,24 +7,24 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import { Gowun_Batang } from 'next/font/google';
 
-const siteDescription = '설교의 은혜를 깊이 있게 기록하다';
-const url = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const SITE_DESCRIPTION = '설교의 은혜를 깊이 있게 기록하다';
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(url),
+  metadataBase: new URL(BASE_URL),
   title: '마음판',
-  description: siteDescription,
+  description: SITE_DESCRIPTION,
   openGraph: {
     title: '마음판',
-    description: siteDescription,
+    description: SITE_DESCRIPTION,
     type: 'website',
-    url,
+    url: BASE_URL,
     siteName: '마음판',
   },
   twitter: {
     card: 'summary_large_image',
     title: '마음판',
-    description: siteDescription,
+    description: SITE_DESCRIPTION,
   },
 };
 
@@ -46,11 +46,11 @@ const gowunBatang = Gowun_Batang({
   display: 'swap',
 });
 
-const RootLayout = ({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) => {
+}>) {
   return (
     <html lang="ko" className={gowunBatang.variable} suppressHydrationWarning>
       <body className="bg-background text-foreground font-serif antialiased">
@@ -67,6 +67,4 @@ const RootLayout = ({
       <KakaoScript />
     </html>
   );
-};
-
-export default RootLayout;
+}

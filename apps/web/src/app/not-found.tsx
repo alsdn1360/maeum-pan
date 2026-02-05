@@ -1,16 +1,16 @@
 'use client';
 
+import { arrowLeftIcon } from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft02Icon, SearchRemoveIcon } from '@hugeicons/core-free-icons';
+import { SearchRemoveIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { useRouter } from 'next/navigation';
 
 const searchRemoveIcon = (
   <HugeiconsIcon icon={SearchRemoveIcon} className="mx-auto size-16" />
 );
-const arrowLeftIcon = <HugeiconsIcon icon={ArrowLeft02Icon} />;
 
-const NotFound = () => {
+export default function NotFound() {
   const router = useRouter();
 
   return (
@@ -40,6 +40,4 @@ const NotFound = () => {
       </div>
     </div>
   );
-};
-
-export default NotFound;
+}

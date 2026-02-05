@@ -9,7 +9,7 @@ interface SermonListItemProps {
   sermon: SermonItem;
 }
 
-export const SermonListItem = ({ sermon }: SermonListItemProps) => {
+export function SermonListItem({ sermon }: SermonListItemProps) {
   const { id, data } = sermon;
 
   const title = extractSermonTitle({ summary: data.summary });
@@ -32,4 +32,4 @@ export const SermonListItem = ({ sermon }: SermonListItemProps) => {
       </Link>
     </li>
   );
-};
+}
