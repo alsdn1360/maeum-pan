@@ -1,11 +1,29 @@
-import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
+import { useState } from 'react';
+
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 
 const YOUTUBE_THUMBNAIL_URL =
   'https://img.youtube.com/vi/{videoId}/maxresdefault.jpg';
+const COPY_CLEAR_DELAY = 5 * 1000; // 5초
 
-export const useKakaoShare = () => {
-  const handleShareSermon = (videoId: string, sermonTitle: string) => {
+export const useShareSermon = () => {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyUrl = (url: string) => {
+    navigator.clipboard.writeText(url);
+
+    setIsCopied(true);
+
+    setTimeout(() => {
+      setIsCopied(false);
+    }, COPY_CLEAR_DELAY);
+  };
+
+  const handleShareKakao = (
+    videoId: string,
+    sermonTitle: string,
+    url: string,
+  ) => {
     const { Kakao } = window;
 
     if (!Kakao || !Kakao.Share) {
@@ -14,10 +32,6 @@ export const useKakaoShare = () => {
       return;
     }
 
-    const url = buildUrlWithParams({
-      url: APP_BASE_URL + APP_PATH.SERMON,
-      pathParams: { videoId },
-    });
     const imageUrl = buildUrlWithParams({
       url: YOUTUBE_THUMBNAIL_URL,
       pathParams: { videoId },
@@ -26,7 +40,7 @@ export const useKakaoShare = () => {
     Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title: '마음에 새긴 은혜를 나눕니다 💌',
+        title: '마음에 새긴 말씀을 나눕니다 💌',
         description: sermonTitle,
         imageUrl: imageUrl,
         link: {
@@ -46,5 +60,5 @@ export const useKakaoShare = () => {
     });
   };
 
-  return { handleShareSermon };
+  return { handleShareKakao, handleCopyUrl, isCopied };
 };
