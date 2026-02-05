@@ -3,20 +3,20 @@
 import {
   arrowLeftIcon,
   imageDownloadIcon,
-  shareIcon,
 } from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { APP_PATH } from '@/constants/app-path';
+import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
+import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
 import { useCaptureSermon } from '../_hooks/use-capture-sermon';
-import { useKakaoShare } from '../_hooks/use-kakao-share';
 import { useScrollThreshold } from '../_hooks/use-scroll-thresold';
 import { useSermonData } from '../_hooks/use-sermon-data';
 import { SermonDeleteDialog } from './sermon-delete-dialog';
+import { SermonShareDialog } from './sermon-share-dialog';
 
 interface SermonHeaderProps {
   videoId: string;
@@ -27,11 +27,15 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
   const { data } = useSermonData({ videoId });
 
   const { isCapturing, handleCaptureSermonCard } = useCaptureSermon();
-  const { handleShareSermon } = useKakaoShare();
 
   const sermonTitle = data
     ? extractSermonTitle({ summary: data.summary })
     : '은혜롭게 주시는 말씀';
+
+  const url = buildUrlWithParams({
+    url: APP_BASE_URL + APP_PATH.SERMON,
+    pathParams: { videoId },
+  });
 
   return (
     <header
@@ -60,14 +64,11 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
           </span>
         </Button>
 
-        <Button
-          variant="outline"
-          size="responsive-icon"
-          onClick={() => handleShareSermon(videoId, sermonTitle)}
-          disabled={isCapturing}>
-          {shareIcon}
-          <span className="hidden sm:block">말씀 나누기</span>
-        </Button>
+        <SermonShareDialog
+          videoId={videoId}
+          sermonTitle={sermonTitle}
+          url={url}
+        />
 
         <SermonDeleteDialog videoId={videoId} isCapturing={isCapturing} />
       </div>
