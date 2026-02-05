@@ -22,11 +22,9 @@ export function SermonListItem({ sermon }: SermonListItemProps) {
     <li>
       <Link
         href={sermonPath}
-        className="text-muted-foreground hover:text-foreground flex items-center justify-between gap-2 py-2.5 transition-colors">
-        <span className="line-clamp-1 max-w-36 truncate text-sm sm:max-w-56">
-          {title}
-        </span>
-        <span className="text-muted-foreground text-xs">
+        className="text-muted-foreground hover:text-foreground flex items-center justify-between gap-3 py-2.5 transition-colors">
+        <span className="line-clamp-1 truncate text-sm">{title}</span>
+        <span className="text-muted-foreground shrink-0 text-xs">
           {formatDate({ dateString: data.createdAt })}
         </span>
       </Link>

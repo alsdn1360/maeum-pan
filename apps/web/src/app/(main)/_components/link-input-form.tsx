@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
-import { useSermonForm } from '../_hooks/use-sermon-form';
+import { useLinkInputForm } from '../_hooks/use-link-input-form';
 import { LinkInputStatusMsg } from './link-input-status-message';
 
 export function LinkInputForm() {
-  const { inputRef, handleSubmit, errorMessage, isPending } = useSermonForm();
+  const { inputRef, handleSubmit, errorMessage, isPending } =
+    useLinkInputForm();
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">

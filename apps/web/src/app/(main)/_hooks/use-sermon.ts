@@ -1,4 +1,4 @@
-import { postSermon } from '@/api/main/post-sermon/post';
+import { postSermon } from '@/api/post-sermon/post';
 import useSWRMutation from 'swr/mutation';
 
 const sendSermonRequest = (_: string, { arg }: { arg: string }) =>

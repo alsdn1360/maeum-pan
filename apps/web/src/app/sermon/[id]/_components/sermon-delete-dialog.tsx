@@ -1,3 +1,4 @@
+import { deleteIcon } from '@/components/common/icons/icons';
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -10,8 +11,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { APP_PATH } from '@/constants/app-path';
-import { Delete02Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { useRouter } from 'next/navigation';
 
 interface SermonDeleteDialogProps {
@@ -19,12 +18,10 @@ interface SermonDeleteDialogProps {
   isCapturing: boolean;
 }
 
-const deleteIcon = <HugeiconsIcon icon={Delete02Icon} />;
-
-export const SermonDeleteDialog = ({
+export function SermonDeleteDialog({
   videoId,
   isCapturing,
-}: SermonDeleteDialogProps) => {
+}: SermonDeleteDialogProps) {
   const router = useRouter();
 
   return (
@@ -63,4 +60,4 @@ export const SermonDeleteDialog = ({
       </AlertDialogContent>
     </AlertDialog>
   );
-};
+}

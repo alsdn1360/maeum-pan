@@ -1,15 +1,17 @@
 import { useEffect, useLayoutEffect, useState } from 'react';
 
-import { getSermon } from '@/api/main/get-sermon/get';
-import { type SermonCacheData, takeSermonCache } from '@/lib/sermon-cache';
+import { getSermon } from '@/api/get-sermon/get';
+import {
+  type SermonCacheData,
+  setSermonCache,
+  takeSermonCache,
+} from '@/lib/sermon-cache';
 
-interface UseSermonDataResult {
-  data: SermonCacheData | null;
-  isResolved: boolean;
-  error: string | null;
+interface UseSermonDataProps {
+  videoId: string;
 }
 
-export const useSermonData = (videoId: string): UseSermonDataResult => {
+export const useSermonData = ({ videoId }: UseSermonDataProps) => {
   const [data, setData] = useState<SermonCacheData | null>(null);
   const [isResolved, setIsResolved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,14 +26,14 @@ export const useSermonData = (videoId: string): UseSermonDataResult => {
       return;
     }
 
-    const sermonFromLocalStorage =
+    const sermonFromStorage =
       typeof window !== 'undefined'
         ? localStorage.getItem(`sermon-${videoId}`)
         : null;
 
-    if (sermonFromLocalStorage) {
+    if (sermonFromStorage) {
       try {
-        setData(JSON.parse(sermonFromLocalStorage));
+        setData(JSON.parse(sermonFromStorage));
         setIsResolved(true);
       } catch {
         /* empty */
@@ -57,11 +59,18 @@ export const useSermonData = (videoId: string): UseSermonDataResult => {
           isNonSermon: response.isNonSermon,
         };
 
-        localStorage.setItem(`sermon-${videoId}`, JSON.stringify(sermonData));
+        setSermonCache(response.videoId, sermonData);
+        localStorage.setItem(
+          `sermon-${response.videoId}`,
+          JSON.stringify(sermonData),
+        );
+
         setData(sermonData);
       } catch (e) {
         setError(
-          e instanceof Error ? e.message : '말씀을 불러오는데 실패했습니다.',
+          e instanceof Error
+            ? e.message
+            : '말씀을 불러오는 중에 문제가 발생했습니다',
         );
       } finally {
         setIsResolved(true);

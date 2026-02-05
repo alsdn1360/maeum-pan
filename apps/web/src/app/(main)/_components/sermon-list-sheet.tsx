@@ -40,12 +40,13 @@ export function SermonListSheet() {
           <SheetHeader>
             <SheetTitle>새겨진 말씀</SheetTitle>
             <SheetDescription>
-              저장된 설교는 브라우저에 보관되며, 방문 기록 삭제 시 초기화됩니다
+              마음에 새긴 은혜를 이곳에 보관합니다.
+              <br /> 방문 기록 정리 시 초기화됩니다.
             </SheetDescription>
           </SheetHeader>
           {sortedSermonList.length === 0 ? (
             <p className="text-muted-foreground px-6 text-sm">
-              아직 새겨진 말씀이 없습니다
+              은혜로운 말씀으로 이곳을 채워보세요
             </p>
           ) : (
             <ul className="px-6 pb-6">

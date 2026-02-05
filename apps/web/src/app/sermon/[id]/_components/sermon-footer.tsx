@@ -1,4 +1,4 @@
-export const SermonFooter = () => {
+export function SermonFooter() {
   return (
     <footer className="mt-8 w-full p-4 text-center">
       <p className="text-muted-foreground text-xs leading-relaxed">
@@ -8,4 +8,4 @@ export const SermonFooter = () => {
       </p>
     </footer>
   );
-};
+}

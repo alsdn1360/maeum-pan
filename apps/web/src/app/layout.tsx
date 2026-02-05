@@ -1,24 +1,24 @@
 import './globals.css';
 
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { APP_BASE_URL } from '@/constants/app-path';
 import KakaoScript from '@/lib/kakao-script';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
 import { Gowun_Batang } from 'next/font/google';
 
-const SITE_DESCRIPTION = '설교의 은혜를 깊이 있게 기록하다';
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+const SITE_DESCRIPTION = '흘러가는 말씀을 붙잡아, 인자와 진리를 마음에 새기다';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(APP_BASE_URL),
   title: '마음판',
   description: SITE_DESCRIPTION,
   openGraph: {
     title: '마음판',
     description: SITE_DESCRIPTION,
     type: 'website',
-    url: BASE_URL,
+    url: APP_BASE_URL,
     siteName: '마음판',
   },
   twitter: {
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: 'oklch(0.99 0.004 94)' },
-    { media: '(prefers-color-scheme: dark)', color: 'oklch(0.145 0 0)' },
+    { media: '(prefers-color-scheme: dark)', color: 'oklch(0.19 0 0)' },
   ],
   width: 'device-width',
   initialScale: 1,

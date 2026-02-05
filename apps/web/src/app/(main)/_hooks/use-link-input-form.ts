@@ -18,7 +18,7 @@ const ERROR_MSGS = {
 } as const;
 const ERROR_CLEAR_DELAY = 5000;
 
-export const useSermonForm = () => {
+export const useLinkInputForm = () => {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isTransitioning, startTransition] = useTransition();
@@ -61,7 +61,7 @@ export const useSermonForm = () => {
       return;
     }
 
-    const sermonStorageData: SermonCacheData = {
+    const sermonData: SermonCacheData = {
       videoId: response.videoId,
       summary: response.summary,
       createdAt: response.createdAt,
@@ -70,10 +70,10 @@ export const useSermonForm = () => {
       isNonSermon: response.isNonSermon,
     };
 
-    setSermonCache(response.videoId, sermonStorageData);
+    setSermonCache(response.videoId, sermonData);
     localStorage.setItem(
       `sermon-${response.videoId}`,
-      JSON.stringify(sermonStorageData),
+      JSON.stringify(sermonData),
     );
 
     startTransition(() => {

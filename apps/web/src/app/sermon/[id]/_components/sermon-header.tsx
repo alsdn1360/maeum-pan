@@ -1,37 +1,28 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
+import {
+  arrowLeftIcon,
+  imageDownloadIcon,
+  shareIcon,
+} from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { APP_PATH } from '@/constants/app-path';
+import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
 import { takeSermonCache } from '@/lib/sermon-cache';
 import { cn } from '@/lib/utils';
-import {
-  ArrowLeft02Icon,
-  ImageDownload02Icon,
-  Share01Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { toPng } from 'html-to-image';
 import Link from 'next/link';
 
 import { SERMON_CAPTURE_AREA_ID } from '../_constants/sermon-capture';
+import { useScrollThreshold } from '../_hooks/use-scroll-thresold';
 import { SermonDeleteDialog } from './sermon-delete-dialog';
 
-interface SermonHeaderProps {
-  videoId: string;
-}
-
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 const PADDING_X = 16;
 const PADDING_Y = 32;
-
-const arrowLeftIcon = <HugeiconsIcon icon={ArrowLeft02Icon} />;
-const imageDownloadIcon = <HugeiconsIcon icon={ImageDownload02Icon} />;
-const shareIcon = <HugeiconsIcon icon={Share01Icon} />;
 
 const getSermonTitle = (videoId: string) => {
   const sermonFromCache = takeSermonCache(videoId);
@@ -39,40 +30,26 @@ const getSermonTitle = (videoId: string) => {
   if (sermonFromCache) {
     return extractSermonTitle({ summary: sermonFromCache.summary });
   } else {
-    const sermonFromLocalStorage =
+    const sermonFromStorage =
       typeof window !== 'undefined'
         ? localStorage.getItem(`sermon-${videoId}`)
         : null;
 
-    if (sermonFromLocalStorage) {
-      const sermon = JSON.parse(sermonFromLocalStorage);
+    if (sermonFromStorage) {
+      const sermon = JSON.parse(sermonFromStorage);
 
       return extractSermonTitle({ summary: sermon.summary });
     }
   }
 };
 
-export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
-  const [isScrolled, setIsScrolled] = useState(false);
+interface SermonHeaderProps {
+  videoId: string;
+}
+
+export function SermonHeader({ videoId }: SermonHeaderProps) {
+  const { isScrolled } = useScrollThreshold({ threshold: 0 });
   const [isCapturing, setIsCapturing] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const isOverThreshold = window.scrollY > 0;
-
-      setIsScrolled((prev) => {
-        if (prev !== isOverThreshold) {
-          return isOverThreshold;
-        }
-
-        return prev;
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const handleCapture = async () => {
     const element = document.getElementById(SERMON_CAPTURE_AREA_ID);
@@ -88,7 +65,7 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
     try {
       await document.fonts.ready;
 
-      const title = getSermonTitle(videoId);
+      const sermonTitle = getSermonTitle(videoId);
       const currentBgColor = window.getComputedStyle(element).backgroundColor;
       const width = element.scrollWidth + PADDING_X * 2;
       const height = element.scrollHeight + PADDING_Y * 2;
@@ -114,12 +91,12 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
 
       const link = document.createElement('a');
 
-      link.download = `마음판-말씀 카드-${title}.png`;
+      link.download = `마음판-말씀 카드-${sermonTitle}.png`;
       link.href = dataUrl;
       link.click();
     } catch (err) {
-      console.error('캡처 실패:', err);
-      alert('말씀을 담는 중에 문제가 발생했습니다.');
+      console.error('말씀 카드 캡처 실패:', err);
+      alert('말씀 카드에 말씀을 담는 중에 문제가 발생했습니다.');
     } finally {
       setIsCapturing(false);
     }
@@ -135,16 +112,16 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
     }
 
     const url = buildUrlWithParams({
-      url: `${BASE_URL}${APP_PATH.SERMON}`,
+      url: APP_BASE_URL + APP_PATH.SERMON,
       pathParams: { videoId },
     });
-    const title = getSermonTitle(videoId);
+    const sermonTitle = getSermonTitle(videoId);
 
     Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
-        title: '나누고 싶은 말씀이 있어요',
-        description: title,
+        title: '마음에 새긴 은혜를 나눕니다 💌',
+        description: sermonTitle,
         imageUrl: '',
         link: {
           mobileWebUrl: url,
@@ -166,8 +143,8 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
   return (
     <header
       className={cn(
-        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between p-4 transition-colors duration-200',
-        isScrolled ? 'border-border border-b' : 'border-b border-transparent',
+        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4 transition-all duration-200 ease-in-out',
+        isScrolled ? 'border-border' : 'border-transparent',
       )}>
       <Button
         variant="ghost"
@@ -203,4 +180,4 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
       </div>
     </header>
   );
-};
+}

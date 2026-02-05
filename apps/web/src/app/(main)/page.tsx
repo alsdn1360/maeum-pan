@@ -4,7 +4,7 @@ import { MainHeader } from './_components/main-header';
 
 export default function MainPage() {
   return (
-    <main className="flex h-screen w-full flex-col overflow-hidden">
+    <main className="flex min-h-screen w-full flex-col overflow-hidden">
       <MainHeader />
       <MainContent />
       <MainFooter />

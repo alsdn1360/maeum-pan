@@ -4,13 +4,12 @@ import Link from 'next/link';
 interface SermonContentActionsProps {
   originalUrl: string;
   createdAt: string;
-  videoId: string;
 }
 
-export const SermonContentActions = ({
+export function SermonContentActions({
   originalUrl,
   createdAt,
-}: SermonContentActionsProps) => {
+}: SermonContentActionsProps) {
   return (
     <div className="flex w-full flex-col items-start justify-between gap-8">
       <div className="flex flex-col items-start gap-1">
@@ -27,4 +26,4 @@ export const SermonContentActions = ({
       </div>
     </div>
   );
-};
+}
