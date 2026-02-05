@@ -1,9 +1,9 @@
 import { SermonListSheet } from './sermon-list-sheet';
 
-export const MainHeader = () => {
+export function MainHeader() {
   return (
-    <header className="flex h-16 items-center p-4">
+    <header className="bg-background sticky top-0 z-10 flex h-16 items-center p-4">
       <SermonListSheet />
     </header>
   );
-};
+}

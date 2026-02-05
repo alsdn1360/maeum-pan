@@ -6,10 +6,10 @@ interface SermonBodyProps {
   summary: string;
 }
 
-export const SermonBody = ({ summary }: SermonBodyProps) => {
+export function SermonBody({ summary }: SermonBodyProps) {
   return (
-    <article className="prose prose-neutral prose-lg dark:prose-invert max-w-none">
+    <article className="prose prose-lg dark:prose-invert text-foreground prose-headings:text-foreground prose-p:text-foreground prose-strong:text-foreground prose-ul:text-foreground prose-ol:text-foreground prose-li:text-foreground max-w-none">
       <ReactMarkdown remarkPlugins={[remarkGfm]}>{summary}</ReactMarkdown>
     </article>
   );
-};
+}

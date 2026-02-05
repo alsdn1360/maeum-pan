@@ -1,15 +1,14 @@
-const BASE_URL =
+const API_BASE_URL =
   typeof window === 'undefined'
     ? process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_BASE_URL
     : process.env.NEXT_PUBLIC_API_BASE_URL;
-
 const TIMEOUT_MS = 3 * 60 * 1000; // 3분
 
 const request = async <T>(
   endpoint: string,
   options: RequestInit,
 ): Promise<T> => {
-  const url = `${BASE_URL}${endpoint}`;
+  const url = `${API_BASE_URL}${endpoint}`;
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -39,22 +38,27 @@ const request = async <T>(
   }
 };
 
-export const api = {
-  get: <T>(endpoint: string) => request<T>(endpoint, { method: 'GET' }),
-  post: <T>(endpoint: string, body: unknown) =>
+export const apiClient = {
+  get: <T>(endpoint: string, options?: RequestInit) =>
+    request<T>(endpoint, { method: 'GET', ...options }),
+  post: <T>(endpoint: string, body: unknown, options?: RequestInit) =>
     request<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(body),
+      ...options,
     }),
-  put: <T>(endpoint: string, body: unknown) =>
+  put: <T>(endpoint: string, body: unknown, options?: RequestInit) =>
     request<T>(endpoint, {
       method: 'PUT',
       body: JSON.stringify(body),
+      ...options,
     }),
-  patch: <T>(endpoint: string, body: unknown) =>
+  patch: <T>(endpoint: string, body: unknown, options?: RequestInit) =>
     request<T>(endpoint, {
       method: 'PATCH',
       body: JSON.stringify(body),
+      ...options,
     }),
-  delete: <T>(endpoint: string) => request<T>(endpoint, { method: 'DELETE' }),
+  delete: <T>(endpoint: string, options?: RequestInit) =>
+    request<T>(endpoint, { method: 'DELETE', ...options }),
 };
