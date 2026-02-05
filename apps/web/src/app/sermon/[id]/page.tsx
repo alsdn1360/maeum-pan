@@ -9,7 +9,7 @@ interface SermonPageProps {
   }>;
 }
 
-const SermonPage = async ({ params }: SermonPageProps) => {
+export default async function SermonPage({ params }: SermonPageProps) {
   const { id } = await params;
 
   return (
@@ -18,13 +18,11 @@ const SermonPage = async ({ params }: SermonPageProps) => {
 
       <div
         id={SERMON_CAPTURE_AREA_ID}
-        className="bg-background mx-auto w-full max-w-3xl">
+        className="bg-background mx-auto flex w-full max-w-3xl flex-1 flex-col">
         <SermonContent videoId={id} />
 
         <SermonFooter />
       </div>
     </main>
   );
-};
-
-export default SermonPage;
+}

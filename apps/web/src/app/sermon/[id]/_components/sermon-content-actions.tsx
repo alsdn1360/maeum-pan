@@ -3,14 +3,13 @@ import Link from 'next/link';
 
 interface SermonContentActionsProps {
   originalUrl: string;
-  createdAt: string;
-  videoId: string;
+  savedAt: string;
 }
 
-export const SermonContentActions = ({
+export function SermonContentActions({
   originalUrl,
-  createdAt,
-}: SermonContentActionsProps) => {
+  savedAt,
+}: SermonContentActionsProps) {
   return (
     <div className="flex w-full flex-col items-start justify-between gap-8">
       <div className="flex flex-col items-start gap-1">
@@ -22,9 +21,9 @@ export const SermonContentActions = ({
           설교 원본: {originalUrl}
         </Link>
         <p className="text-muted-foreground text-sm">
-          마음에 담은 날: {formatDate({ dateString: createdAt })}
+          마음에 담은 날: {formatDate({ dateString: savedAt })}
         </p>
       </div>
     </div>
   );
-};
+}

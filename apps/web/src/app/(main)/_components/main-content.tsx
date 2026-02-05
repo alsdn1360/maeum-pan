@@ -1,8 +1,8 @@
 import { LinkInputForm } from './link-input-form';
 
-export const MainContent = () => {
+export function MainContent() {
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center gap-8 px-4">
+    <div className="flex w-full flex-1 flex-col items-center justify-center gap-8 px-4 -mt-16">
       <h1 className="text-2xl font-bold">마음판</h1>
 
       <div className="flex w-full flex-col gap-4">
@@ -19,4 +19,4 @@ export const MainContent = () => {
       </div>
     </div>
   );
-};
+}

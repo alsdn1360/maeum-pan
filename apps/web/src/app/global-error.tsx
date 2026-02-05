@@ -2,19 +2,21 @@
 
 import './globals.css';
 
+import {
+  arrowLeftIcon,
+  homeIcon,
+  refreshIcon,
+} from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { APP_PATH } from '@/constants/app-path';
-import {
-  AccidentIcon,
-  ArrowLeft02Icon,
-  Home07Icon,
-  RefreshIcon,
-} from '@hugeicons/core-free-icons';
+import { AccidentIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Gowun_Batang } from 'next/font/google';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+const SUPPORT_MAIL = 'kdw34441360@gmail.com';
 
 const gowunBatang = Gowun_Batang({
   variable: '--font-gowun-batang',
@@ -23,19 +25,18 @@ const gowunBatang = Gowun_Batang({
   display: 'swap',
 });
 
-const SUPPORT_MAIL = 'kdw34441360@gmail.com';
-
 const accidentIcon = (
   <HugeiconsIcon
     icon={AccidentIcon}
     className="text-destructive mx-auto size-16"
   />
 );
-const refreshIcon = <HugeiconsIcon icon={RefreshIcon} />;
-const arrowLeftIcon = <HugeiconsIcon icon={ArrowLeft02Icon} />;
-const homeIcon = <HugeiconsIcon icon={Home07Icon} />;
 
-const Error = ({ error }: { error: Error & { digest?: string } }) => {
+interface GlobalErrorProps {
+  error: Error & { digest?: string };
+}
+
+export default function GlobalError({ error }: GlobalErrorProps) {
   const router = useRouter();
 
   return (
@@ -114,6 +115,4 @@ const Error = ({ error }: { error: Error & { digest?: string } }) => {
       </body>
     </html>
   );
-};
-
-export default Error;
+}

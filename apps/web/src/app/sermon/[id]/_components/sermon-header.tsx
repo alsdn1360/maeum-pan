@@ -1,173 +1,47 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
+import {
+  arrowLeftIcon,
+  imageDownloadIcon,
+} from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { APP_PATH } from '@/constants/app-path';
+import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
-import { takeSermonCache } from '@/lib/sermon-cache';
 import { cn } from '@/lib/utils';
-import {
-  ArrowLeft02Icon,
-  ImageDownload02Icon,
-  Share01Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { toPng } from 'html-to-image';
 import Link from 'next/link';
 
-import { SERMON_CAPTURE_AREA_ID } from '../_constants/sermon-capture';
+import { useCaptureSermon } from '../_hooks/use-capture-sermon';
+import { useScrollThreshold } from '../_hooks/use-scroll-thresold';
+import { useSermonData } from '../_hooks/use-sermon-data';
 import { SermonDeleteDialog } from './sermon-delete-dialog';
+import { SermonShareDialog } from './sermon-share-dialog';
 
 interface SermonHeaderProps {
   videoId: string;
 }
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
-const PADDING_X = 16;
-const PADDING_Y = 32;
+export function SermonHeader({ videoId }: SermonHeaderProps) {
+  const { isScrolled } = useScrollThreshold({ threshold: 0 });
+  const { data } = useSermonData({ videoId });
 
-const arrowLeftIcon = <HugeiconsIcon icon={ArrowLeft02Icon} />;
-const imageDownloadIcon = <HugeiconsIcon icon={ImageDownload02Icon} />;
-const shareIcon = <HugeiconsIcon icon={Share01Icon} />;
+  const { isCapturing, handleCaptureSermonCard } = useCaptureSermon();
 
-const getSermonTitle = (videoId: string) => {
-  const sermonFromCache = takeSermonCache(videoId);
+  const sermonTitle = data
+    ? extractSermonTitle({ summary: data.summary })
+    : '은혜롭게 주시는 말씀';
 
-  if (sermonFromCache) {
-    return extractSermonTitle({ summary: sermonFromCache.summary });
-  } else {
-    const sermonFromLocalStorage =
-      typeof window !== 'undefined'
-        ? localStorage.getItem(`sermon-${videoId}`)
-        : null;
-
-    if (sermonFromLocalStorage) {
-      const sermon = JSON.parse(sermonFromLocalStorage);
-
-      return extractSermonTitle({ summary: sermon.summary });
-    }
-  }
-};
-
-export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isCapturing, setIsCapturing] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const isOverThreshold = window.scrollY > 0;
-
-      setIsScrolled((prev) => {
-        if (prev !== isOverThreshold) {
-          return isOverThreshold;
-        }
-
-        return prev;
-      });
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleCapture = async () => {
-    const element = document.getElementById(SERMON_CAPTURE_AREA_ID);
-
-    if (!element) {
-      alert('담을 말씀을 찾을 수 없습니다.');
-
-      return;
-    }
-
-    setIsCapturing(true);
-
-    try {
-      await document.fonts.ready;
-
-      const title = getSermonTitle(videoId);
-      const currentBgColor = window.getComputedStyle(element).backgroundColor;
-      const width = element.scrollWidth + PADDING_X * 2;
-      const height = element.scrollHeight + PADDING_Y * 2;
-
-      const dataUrl = await toPng(element, {
-        cacheBust: true,
-        width: width,
-        height: height,
-        pixelRatio: 2,
-
-        style: {
-          backgroundColor: currentBgColor,
-          padding: `${PADDING_Y}px ${PADDING_X}px`,
-          margin: '0',
-          width: '100%',
-          height: 'auto',
-          maxWidth: 'none',
-          transform: 'none',
-          WebkitFontSmoothing: 'antialiased',
-          fontSmooth: 'antialiased',
-        } as Partial<CSSStyleDeclaration>,
-      });
-
-      const link = document.createElement('a');
-
-      link.download = `마음판-말씀 카드-${title}.png`;
-      link.href = dataUrl;
-      link.click();
-    } catch (err) {
-      console.error('캡처 실패:', err);
-      alert('말씀을 담는 중에 문제가 발생했습니다.');
-    } finally {
-      setIsCapturing(false);
-    }
-  };
-
-  const handleShare = () => {
-    const { Kakao } = window;
-
-    if (!Kakao || !Kakao.Share) {
-      alert('카카오톡 공유 기능을 불러오지 못했습니다.');
-
-      return;
-    }
-
-    const url = buildUrlWithParams({
-      url: `${BASE_URL}${APP_PATH.SERMON}`,
-      pathParams: { videoId },
-    });
-    const title = getSermonTitle(videoId);
-
-    Kakao.Share.sendDefault({
-      objectType: 'feed',
-      content: {
-        title: '나누고 싶은 말씀이 있어요',
-        description: title,
-        imageUrl: '',
-        link: {
-          mobileWebUrl: url,
-          webUrl: url,
-        },
-      },
-      buttons: [
-        {
-          title: '말씀 보러가기',
-          link: {
-            mobileWebUrl: url,
-            webUrl: url,
-          },
-        },
-      ],
-    });
-  };
+  const url = buildUrlWithParams({
+    url: APP_BASE_URL + APP_PATH.SERMON,
+    pathParams: { videoId },
+  });
 
   return (
     <header
       className={cn(
-        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between p-4 transition-colors duration-200',
-        isScrolled ? 'border-border border-b' : 'border-b border-transparent',
+        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4 transition-all duration-200 ease-in-out',
+        isScrolled ? 'border-border' : 'border-transparent',
       )}>
       <Button
         variant="ghost"
@@ -182,7 +56,7 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
         <Button
           variant="outline"
           size="responsive-icon"
-          onClick={handleCapture}
+          onClick={() => handleCaptureSermonCard(sermonTitle)}
           disabled={isCapturing}>
           {isCapturing ? <Spinner /> : imageDownloadIcon}
           <span className="hidden sm:block">
@@ -190,17 +64,14 @@ export const SermonHeader = ({ videoId }: SermonHeaderProps) => {
           </span>
         </Button>
 
-        <Button
-          variant="outline"
-          size="responsive-icon"
-          onClick={handleShare}
-          disabled={isCapturing}>
-          {shareIcon}
-          <span className="hidden sm:block">말씀 나누기</span>
-        </Button>
+        <SermonShareDialog
+          videoId={videoId}
+          sermonTitle={sermonTitle}
+          url={url}
+        />
 
         <SermonDeleteDialog videoId={videoId} isCapturing={isCapturing} />
       </div>
     </header>
   );
-};
+}
