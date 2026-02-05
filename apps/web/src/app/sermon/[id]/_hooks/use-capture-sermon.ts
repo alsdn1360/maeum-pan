@@ -1,0 +1,63 @@
+import { useState } from 'react';
+
+import { toPng } from 'html-to-image';
+
+import { SERMON_CAPTURE_AREA_ID } from '../_constants/sermon-capture';
+
+const PADDING_X = 16;
+const PADDING_Y = 20;
+
+export const useCaptureSermon = () => {
+  const [isCapturing, setIsCapturing] = useState(false);
+
+  const handleCaptureSermonCard = async (title: string) => {
+    const element = document.getElementById(SERMON_CAPTURE_AREA_ID);
+
+    if (!element) {
+      alert('담을 말씀을 찾을 수 없습니다.');
+
+      return;
+    }
+
+    setIsCapturing(true);
+
+    try {
+      await document.fonts.ready;
+
+      const currentBgColor = window.getComputedStyle(element).backgroundColor;
+      const width = element.scrollWidth + PADDING_X * 2;
+      const height = element.scrollHeight + PADDING_Y * 2;
+
+      const dataUrl = await toPng(element, {
+        cacheBust: true,
+        width,
+        height,
+        pixelRatio: 2,
+        style: {
+          backgroundColor: currentBgColor,
+          padding: `${PADDING_Y}px ${PADDING_X}px`,
+          margin: '0',
+          width: '100%',
+          height: 'auto',
+          maxWidth: 'none',
+          transform: 'none',
+          WebkitFontSmoothing: 'antialiased',
+          fontSmooth: 'antialiased',
+        } as Partial<CSSStyleDeclaration>,
+      });
+
+      const link = document.createElement('a');
+
+      link.download = `마음판-말씀 카드-${title}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (err) {
+      console.error('말씀 카드 캡처 실패:', err);
+      alert('말씀 카드에 말씀을 담는 중에 문제가 발생했습니다.');
+    } finally {
+      setIsCapturing(false);
+    }
+  };
+
+  return { isCapturing, handleCaptureSermonCard };
+};

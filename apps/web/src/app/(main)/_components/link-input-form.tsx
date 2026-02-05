@@ -6,11 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Spinner } from '@/components/ui/spinner';
 
 import { useLinkInputForm } from '../_hooks/use-link-input-form';
-import { LinkInputStatusMsg } from './link-input-status-message';
+import { LinkInputStatusMsg } from './link-input-status-msg';
 
 export function LinkInputForm() {
-  const { inputRef, handleSubmit, errorMessage, isPending } =
-    useLinkInputForm();
+  const { inputRef, handleSubmit, errorMsg, isLoading } = useLinkInputForm();
 
   return (
     <div className="flex flex-col items-center justify-center gap-4">
@@ -24,15 +23,15 @@ export function LinkInputForm() {
           type="url"
           placeholder="예시: https://www.youtube.com/watch?v=..."
           className="h-10"
-          disabled={isPending}
+          disabled={isLoading}
           required
         />
-        <Button type="submit" size="icon-lg" disabled={isPending}>
-          {isPending ? <Spinner /> : sparklesIcon}
+        <Button type="submit" size="icon-lg" disabled={isLoading}>
+          {isLoading ? <Spinner /> : sparklesIcon}
         </Button>
       </form>
 
-      <LinkInputStatusMsg errorMessage={errorMessage} isPending={isPending} />
+      <LinkInputStatusMsg errorMsg={errorMsg} isLoading={isLoading} />
     </div>
   );
 }

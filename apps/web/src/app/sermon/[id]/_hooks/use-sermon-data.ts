@@ -1,84 +1,63 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 
 import { getSermon } from '@/api/get-sermon/get';
-import {
-  type SermonCacheData,
-  setSermonCache,
-  takeSermonCache,
-} from '@/lib/sermon-cache';
+import { readFromStorage, saveToStorage } from '@/lib/local-storage';
+import { type SermonData } from '@/types/sermon';
+import useSWR from 'swr';
 
 interface UseSermonDataProps {
   videoId: string;
 }
 
 export const useSermonData = ({ videoId }: UseSermonDataProps) => {
-  const [data, setData] = useState<SermonCacheData | null>(null);
-  const [isResolved, setIsResolved] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useLayoutEffect(() => {
-    const sermonFromCache = takeSermonCache(videoId);
-
-    if (sermonFromCache) {
-      setData(sermonFromCache);
-      setIsResolved(true);
-
-      return;
-    }
-
-    const sermonFromStorage =
-      typeof window !== 'undefined'
-        ? localStorage.getItem(`sermon-${videoId}`)
-        : null;
-
-    if (sermonFromStorage) {
-      try {
-        setData(JSON.parse(sermonFromStorage));
-        setIsResolved(true);
-      } catch {
-        /* empty */
-      }
-    }
-  }, [videoId]);
+  const [isStorageChecked, setIsStorageChecked] = useState(false);
+  const [cachedData, setCachedData] = useState<SermonData | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
-    if (isResolved || data) {
-      return;
+    const stored = readFromStorage(videoId);
+
+    if (stored) {
+      startTransition(() => {
+        setCachedData(stored);
+      });
     }
 
-    const getSermonFromServer = async () => {
-      try {
-        const response = await getSermon(videoId);
+    startTransition(() => {
+      setIsStorageChecked(true);
+    });
+  }, [videoId]);
 
-        const sermonData: SermonCacheData = {
-          videoId: response.videoId,
-          summary: response.summary,
-          createdAt: response.createdAt,
-          originalUrl: `https://www.youtube.com/watch?v=${response.videoId}`,
-          savedAt: new Date().toISOString(),
-          isNonSermon: response.isNonSermon,
-        };
+  const { data, isLoading, error } = useSWR(
+    isStorageChecked && videoId ? ['sermon', videoId] : null,
+    async () => {
+      const response = await getSermon(videoId);
 
-        setSermonCache(response.videoId, sermonData);
-        localStorage.setItem(
-          `sermon-${response.videoId}`,
-          JSON.stringify(sermonData),
-        );
+      const sermonData: SermonData = {
+        videoId: response.videoId,
+        summary: response.summary,
+        createdAt: response.createdAt,
+        originalUrl: `https://www.youtube.com/watch?v=${response.videoId}`,
+        savedAt: new Date().toISOString(),
+        isNonSermon: response.isNonSermon,
+      };
 
-        setData(sermonData);
-      } catch (e) {
-        setError(
-          e instanceof Error
-            ? e.message
-            : '말씀을 불러오는 중에 문제가 발생했습니다',
-        );
-      } finally {
-        setIsResolved(true);
-      }
-    };
+      saveToStorage(videoId, sermonData);
 
-    getSermonFromServer();
-  }, [videoId, isResolved, data]);
+      return sermonData;
+    },
+    {
+      fallbackData: cachedData,
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    },
+  );
 
-  return { data, isResolved, error };
+  return {
+    data,
+    isLoading: !isStorageChecked || isLoading,
+    error: error instanceof Error ? error.message : error ? '에러 발생' : null,
+  };
 };

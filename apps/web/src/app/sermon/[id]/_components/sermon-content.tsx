@@ -12,9 +12,9 @@ interface SermonContentProps {
 }
 
 export function SermonContent({ videoId }: SermonContentProps) {
-  const { data, isResolved, error } = useSermonData({ videoId });
+  const { data, isLoading, error } = useSermonData({ videoId });
 
-  if (!isResolved) {
+  if (isLoading) {
     return (
       <div className="flex flex-1 items-center justify-center">
         <Loading />
@@ -41,14 +41,14 @@ export function SermonContent({ videoId }: SermonContentProps) {
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center px-4 py-8">
+    <div className="flex flex-1 flex-col items-center justify-center p-4">
       <SermonBody summary={data.summary} />
 
       <Separator className="my-8" />
 
       <SermonContentActions
         originalUrl={data.originalUrl}
-        createdAt={data.createdAt}
+        savedAt={data.savedAt}
       />
     </div>
   );

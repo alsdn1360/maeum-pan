@@ -12,26 +12,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { Spinner } from '@/components/ui/spinner';
 
 import { SermonListItem } from './sermon-list-item';
 
 export function SermonListSheet() {
-  const sermonList = useSermonList();
-
-  const sortedSermonList = [...sermonList].sort(
-    (a, b) =>
-      new Date(b.data.createdAt).getTime() -
-      new Date(a.data.createdAt).getTime(),
-  );
+  const { sermonList, isLoading } = useSermonList();
 
   return (
     <Sheet>
       <SheetTrigger
         render={
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground self-center text-xs">
+          <Button variant="ghost" size="icon" disabled={isLoading}>
             {menuIcon}
           </Button>
         }></SheetTrigger>
@@ -44,14 +36,18 @@ export function SermonListSheet() {
               <br /> 방문 기록 정리 시 초기화됩니다.
             </SheetDescription>
           </SheetHeader>
-          {sortedSermonList.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center justify-center py-6">
+              <Spinner />
+            </div>
+          ) : sermonList.length === 0 ? (
             <p className="text-muted-foreground px-6 text-sm">
               은혜로운 말씀으로 이곳을 채워보세요
             </p>
           ) : (
             <ul className="px-6 pb-6">
-              {sortedSermonList.map((sermon) => (
-                <SermonListItem key={sermon.id} sermon={sermon} />
+              {sermonList.map((sermon) => (
+                <SermonListItem key={sermon.id} sermon={sermon.data} />
               ))}
             </ul>
           )}
