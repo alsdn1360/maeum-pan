@@ -47,12 +47,12 @@ export const viewport: Viewport = {
 const maruburi = localFont({
   src: [
     {
-      path: '../assets/fonts/MaruBuri/MaruBuri-Regular.otf',
+      path: '../assets/fonts/maruburi/MaruBuri-Regular.otf',
       weight: '400',
       style: 'normal',
     },
     {
-      path: '../assets/fonts/MaruBuri/MaruBuri-Bold.otf',
+      path: '../assets/fonts/maruburi/MaruBuri-Bold.otf',
       weight: '700',
       style: 'normal',
     },
