@@ -6,7 +6,7 @@ import KakaoScript from '@/lib/kakao-script';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata, Viewport } from 'next';
-import { Gowun_Batang } from 'next/font/google';
+import localFont from 'next/font/local';
 
 const SITE_DESCRIPTION = '흘러가는 말씀을 붙잡아, 인자와 진리를 마음에 새기다';
 
@@ -44,10 +44,20 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-const gowunBatang = Gowun_Batang({
-  variable: '--font-gowun-batang',
-  weight: ['400', '700'],
-  subsets: ['latin'],
+const maruburi = localFont({
+  src: [
+    {
+      path: '../assets/fonts/MaruBuri/MaruBuri-Regular.otf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../assets/fonts/MaruBuri/MaruBuri-Bold.otf',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-maruburi',
   display: 'swap',
 });
 
@@ -57,7 +67,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={gowunBatang.variable} suppressHydrationWarning>
+    <html lang="ko" className={maruburi.variable} suppressHydrationWarning>
       <body className="bg-background text-foreground font-serif antialiased">
         <ThemeProvider
           attribute="class"
