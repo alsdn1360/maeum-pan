@@ -38,10 +38,10 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-10 flex h-16 w-full items-center justify-between p-4 transition-all duration-300 ease-in-out',
+        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4 transition-all duration-200 ease-in-out',
         isScrolled
-          ? 'bg-background/70 shadow-xs backdrop-blur-sm'
-          : 'bg-background',
+          ? 'border-border dark:border-border/80'
+          : 'border-transparent',
       )}>
       <div className="flex gap-2">
         <SermonListSheet />
