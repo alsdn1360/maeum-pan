@@ -1,10 +1,11 @@
+import { METADATA_INFO } from '@/constants/metadata-info';
 import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: '마음판',
-    short_name: '마음판',
-    description: '설교의 은혜를 깊이 있게 기록하다',
+    name: METADATA_INFO.SITE_NAME,
+    short_name: METADATA_INFO.SITE_NAME,
+    description: METADATA_INFO.SITE_DESCRIPTION,
     start_url: '/',
     display: 'standalone',
     background_color: '#ffffff',
