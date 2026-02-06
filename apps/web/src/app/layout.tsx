@@ -26,6 +26,11 @@ export const metadata: Metadata = {
     title: '마음판',
     description: SITE_DESCRIPTION,
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: '마음판',
+  },
 };
 
 export const viewport: Viewport = {

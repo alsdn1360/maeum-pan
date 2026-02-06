@@ -1,9 +1,7 @@
 'use client';
 
-import {
-  arrowLeftIcon,
-  imageDownloadIcon,
-} from '@/components/common/icons/icons';
+import { SermonListSheet } from '@/app/(main)/_components/sermon-list-sheet';
+import { homeIcon, imageDownloadIcon } from '@/components/common/icons/icons';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
@@ -40,17 +38,21 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
   return (
     <header
       className={cn(
-        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4 transition-all duration-200 ease-in-out',
-        isScrolled ? 'border-border' : 'border-transparent',
+        'sticky top-0 z-10 flex h-16 w-full items-center justify-between p-4 transition-all duration-300 ease-in-out',
+        isScrolled
+          ? 'bg-background/70 shadow-xs backdrop-blur-sm'
+          : 'bg-background',
       )}>
-      <Button
-        variant="ghost"
-        size="responsive-icon"
-        nativeButton={false}
-        render={<Link href={APP_PATH.MAIN} />}>
-        {arrowLeftIcon}
-        <span className="hidden sm:block">뒤로가기</span>
-      </Button>
+      <div className="flex gap-2">
+        <SermonListSheet />
+        <Button
+          variant="ghost"
+          size="icon"
+          nativeButton={false}
+          render={<Link href={APP_PATH.MAIN} />}>
+          {homeIcon}
+        </Button>
+      </div>
 
       <div className="flex gap-2">
         <Button
