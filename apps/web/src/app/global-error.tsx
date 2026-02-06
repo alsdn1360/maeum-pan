@@ -2,6 +2,7 @@
 
 import './globals.css';
 
+import { maruburi } from '@/assets/fonts/fonts';
 import {
   arrowLeftIcon,
   homeIcon,
@@ -12,18 +13,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import { APP_PATH } from '@/constants/app-path';
 import { AccidentIcon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Gowun_Batang } from 'next/font/google';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const SUPPORT_MAIL = 'kdw34441360@gmail.com';
-
-const gowunBatang = Gowun_Batang({
-  variable: '--font-gowun-batang',
-  weight: ['400', '700'],
-  subsets: ['latin'],
-  display: 'swap',
-});
 
 const accidentIcon = (
   <HugeiconsIcon
@@ -40,7 +33,7 @@ export default function GlobalError({ error }: GlobalErrorProps) {
   const router = useRouter();
 
   return (
-    <html lang="ko" className={gowunBatang.variable} suppressHydrationWarning>
+    <html lang="ko" className={maruburi.variable} suppressHydrationWarning>
       <body className="bg-background text-foreground flex min-h-screen w-screen flex-col items-center justify-center gap-6 p-5 font-serif antialiased">
         <div className="flex max-w-lg flex-col items-center justify-center gap-6">
           {accidentIcon}

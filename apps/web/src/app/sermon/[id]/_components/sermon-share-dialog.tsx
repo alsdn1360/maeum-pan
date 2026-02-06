@@ -43,7 +43,7 @@ export function SermonShareDialog({
       </DialogTrigger>
       <DialogContent initialFocus={false}>
         <DialogHeader>
-          <DialogTitle>마음에 새긴 말씀을 나눠보세요</DialogTitle>
+          <DialogTitle>은혜로운 말씀을 나눠보세요</DialogTitle>
           <DialogDescription>
             링크를 복사하거나 카카오톡으로 바로 공유할 수 있습니다.
           </DialogDescription>

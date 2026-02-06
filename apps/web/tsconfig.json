@@ -21,12 +21,16 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
+      "@/api": ["./src/api"],
+      "@/app": ["./src/app"],
+      "@/assets": ["./src/assets"],
       "@/components": ["./src/components"],
+      "@/ui": ["./src/components/ui"],
       "@/constants": ["./src/constants"],
       "@/hooks": ["./src/hooks"],
       "@/lib": ["./src/lib"],
       "@/styles": ["./src/styles"],
-      "@/ui": ["./src/components/ui"]
+      "@/types": ["./src/types"],
     }
   },
   "include": [

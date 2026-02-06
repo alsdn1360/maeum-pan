@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { showToast } from '@/lib/show-toast';
 import { toPng } from 'html-to-image';
 
 import { SERMON_CAPTURE_AREA_ID } from '../_constants/sermon-capture';
@@ -14,7 +15,7 @@ export const useCaptureSermon = () => {
     const element = document.getElementById(SERMON_CAPTURE_AREA_ID);
 
     if (!element) {
-      alert('담을 말씀을 찾을 수 없습니다.');
+      showToast({ message: '담을 말씀을 찾을 수 없습니다', type: 'error' });
 
       return;
     }
@@ -51,9 +52,11 @@ export const useCaptureSermon = () => {
       link.download = `마음판-말씀 카드-${title}.png`;
       link.href = dataUrl;
       link.click();
-    } catch (err) {
-      console.error('말씀 카드 캡처 실패:', err);
-      alert('말씀 카드에 말씀을 담는 중에 문제가 발생했습니다.');
+    } catch {
+      showToast({
+        message: '말씀 카드에 말씀을 담는 중에 문제가 발생했습니다',
+        type: 'error',
+      });
     } finally {
       setIsCapturing(false);
     }

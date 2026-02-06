@@ -31,9 +31,9 @@ export function SermonListSheet() {
         <ScrollArea className="h-full overflow-y-auto">
           <SheetHeader>
             <SheetTitle>새겨진 말씀</SheetTitle>
-            <SheetDescription>
-              마음에 새긴 은혜를 이곳에 보관합니다.
-              <br /> 방문 기록 정리 시 초기화됩니다.
+            <SheetDescription className="leading-relaxed">
+              마음에 새긴 은혜를 이곳에 보관합니다. 방문 기록 정리 시
+              초기화됩니다.
             </SheetDescription>
           </SheetHeader>
           {isLoading ? (
