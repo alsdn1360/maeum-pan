@@ -27,7 +27,7 @@ export function SermonContent({ videoId }: SermonContentProps) {
 
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p>말씀을 불러오는 중에 문제가 발생했습니다</p>
+        <p>말씀을 불러오는 중에 문제가 발생했어요</p>
       </div>
     );
   }
@@ -35,7 +35,7 @@ export function SermonContent({ videoId }: SermonContentProps) {
   if (!data) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p>아직 마음판에 새겨진 말씀이 없습니다</p>
+        <p>아직 마음판에 새겨진 말씀이 없어요</p>
       </div>
     );
   }
