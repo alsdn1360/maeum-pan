@@ -1,6 +1,7 @@
 import { useState } from 'react';
 
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
+import { showToast } from '@/lib/show-toast';
 
 const YOUTUBE_THUMBNAIL_URL =
   'https://img.youtube.com/vi/{videoId}/maxresdefault.jpg';
@@ -27,7 +28,10 @@ export const useShareSermon = () => {
     const { Kakao } = window;
 
     if (!Kakao || !Kakao.Share) {
-      alert('카카오톡 공유 기능을 불러오지 못했습니다.');
+      showToast({
+        message: '카카오톡 공유 기능을 불러오지 못했습니다',
+        type: 'error',
+      });
 
       return;
     }

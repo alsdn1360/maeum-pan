@@ -1,6 +1,7 @@
 import './globals.css';
 
 import { ThemeProvider } from '@/components/providers/theme-provider';
+import { Toaster } from '@/components/ui/sonner';
 import { APP_BASE_URL } from '@/constants/app-path';
 import KakaoScript from '@/lib/kakao-script';
 import { Analytics } from '@vercel/analytics/next';
@@ -76,6 +77,7 @@ export default function RootLayout({
           disableTransitionOnChange>
           {children}
         </ThemeProvider>
+        <Toaster />
         <Analytics />
         <SpeedInsights />
       </body>
