@@ -1,13 +1,14 @@
 'use client';
 
-import { SermonListSheet } from '@/app/(main)/_components/sermon-list-sheet';
 import { homeIcon, imageDownloadIcon } from '@/components/common/icons/icons';
+import { SermonListSheet } from '@/components/common/sermon-list-sheet';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
 import { cn } from '@/lib/utils';
+import { motion, useScroll } from 'framer-motion';
 import Link from 'next/link';
 
 import { useCaptureSermon } from '../_hooks/use-capture-sermon';
@@ -21,6 +22,7 @@ interface SermonHeaderProps {
 }
 
 export function SermonHeader({ videoId }: SermonHeaderProps) {
+  const { scrollYProgress } = useScroll();
   const { isScrolled } = useScrollThreshold({ threshold: 0 });
   const { data } = useSermonData({ videoId });
 
@@ -74,6 +76,20 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
 
         <SermonDeleteDialog videoId={videoId} isCapturing={isCapturing} />
       </div>
+
+      <motion.div
+        id="scroll-indicator"
+        style={{
+          scaleX: scrollYProgress,
+          position: 'absolute',
+          top: 62.5,
+          left: 0,
+          right: 0,
+          height: 2,
+          originX: 0,
+          backgroundColor: 'var(--primary)',
+        }}
+      />
     </header>
   );
 }

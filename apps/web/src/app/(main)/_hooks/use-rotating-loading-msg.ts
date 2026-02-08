@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { LOADING_MSGS } from '../_constants/loading-msg';
 
-const ROTATION_INTERVAL = 2500;
+const ROTATION_INTERVAL = 3000;
 
 export const useRotatingLoadingMsg = () => {
   const [msgIndex, setMsgIndex] = useState(0);
