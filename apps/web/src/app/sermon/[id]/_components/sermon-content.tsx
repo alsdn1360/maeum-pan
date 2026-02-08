@@ -41,7 +41,7 @@ export function SermonContent({ videoId }: SermonContentProps) {
   }
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center p-4">
+    <div className="flex flex-1 flex-col items-center justify-center">
       <SermonBody summary={data.summary} />
 
       <Separator className="my-8" />

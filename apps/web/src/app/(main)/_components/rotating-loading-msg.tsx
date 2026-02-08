@@ -1,5 +1,6 @@
 'use client';
 
+import { createTransition } from '@/lib/motion';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { LOADING_MSGS } from '../_constants/loading-msg';
@@ -9,15 +10,15 @@ export function RotatingLoadingMsg() {
   const { msgIndex } = useRotatingLoadingMsg();
 
   return (
-    <div className="relative h-4 overflow-hidden">
+    <div className="relative h-4 animate-pulse overflow-hidden">
       <AnimatePresence mode="popLayout">
         <motion.p
           key={LOADING_MSGS[msgIndex]}
-          className="text-muted-foreground absolute inset-x-0 top-0 text-xs font-bold"
+          className="absolute inset-x-0 top-0 text-xs"
           initial={{ opacity: 0, y: '-100%' }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: '100%' }}
-          transition={{ duration: 0.5, ease: [0, 0, 0.2, 1] }}>
+          transition={createTransition()}>
           {LOADING_MSGS[msgIndex]}
         </motion.p>
       </AnimatePresence>

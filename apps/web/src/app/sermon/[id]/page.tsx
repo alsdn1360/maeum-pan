@@ -18,7 +18,7 @@ export default async function SermonPage({ params }: SermonPageProps) {
 
       <div
         id={SERMON_CAPTURE_AREA_ID}
-        className="bg-background mx-auto flex w-full max-w-3xl flex-1 flex-col">
+        className="bg-background mx-auto flex w-full max-w-prose flex-1 flex-col px-4 pt-5 pb-4 sm:px-0 sm:pt-5 sm:pb-4">
         <SermonContent videoId={id} />
 
         <SermonFooter />

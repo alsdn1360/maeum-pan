@@ -1,4 +1,4 @@
-import { SermonListSheet } from './sermon-list-sheet';
+import { SermonListSheet } from '@/components/common/sermon-list-sheet';
 
 export function MainHeader() {
   return (

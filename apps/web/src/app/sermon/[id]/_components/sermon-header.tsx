@@ -1,7 +1,7 @@
 'use client';
 
-import { SermonListSheet } from '@/app/(main)/_components/sermon-list-sheet';
 import { homeIcon, imageDownloadIcon } from '@/components/common/icons/icons';
+import { SermonListSheet } from '@/components/common/sermon-list-sheet';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';

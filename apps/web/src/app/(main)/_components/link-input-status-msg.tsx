@@ -1,5 +1,6 @@
 'use client';
 
+import { createTransition } from '@/lib/motion';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { RotatingLoadingMsg } from './rotating-loading-msg';
@@ -19,11 +20,11 @@ export function LinkInputStatusMsg({
         {errorMsg ? (
           <motion.p
             key="error-msg"
-            className="text-destructive text-xs font-bold"
+            className="text-destructive text-xs"
             initial={{ opacity: 0, y: 0 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 0 }}
-            transition={{ duration: 0.5, ease: [0, 0, 0.2, 1] }}>
+            transition={createTransition()}>
             {errorMsg}
           </motion.p>
         ) : isLoading ? (
@@ -35,11 +36,7 @@ export function LinkInputStatusMsg({
             initial={{ opacity: 0, y: -12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 0 }}
-            transition={{
-              duration: 0.5,
-              delay: 0.1,
-              ease: [0, 0, 0.2, 1],
-            }}>
+            transition={createTransition({ delay: 0.1 })}>
             자막이 없는 영상은 지원하지 않습니다
           </motion.p>
         )}
