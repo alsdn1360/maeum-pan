@@ -6,7 +6,8 @@ import { toPng } from 'html-to-image';
 import { SERMON_CAPTURE_AREA_ID } from '../_constants/sermon-capture';
 
 const PADDING_X = 16;
-const PADDING_Y = 20;
+const PADDING_TOP = 20;
+const PADDING_BOTTOM = 4;
 
 export const useCaptureSermon = () => {
   const [isCapturing, setIsCapturing] = useState(false);
@@ -27,7 +28,7 @@ export const useCaptureSermon = () => {
 
       const currentBgColor = window.getComputedStyle(element).backgroundColor;
       const width = element.scrollWidth + PADDING_X * 2;
-      const height = element.scrollHeight + PADDING_Y * 2;
+      const height = element.scrollHeight + PADDING_TOP + PADDING_BOTTOM;
 
       const dataUrl = await toPng(element, {
         cacheBust: true,
@@ -36,7 +37,7 @@ export const useCaptureSermon = () => {
         pixelRatio: 2,
         style: {
           backgroundColor: currentBgColor,
-          padding: `${PADDING_Y}px ${PADDING_X}px`,
+          padding: `${PADDING_TOP}px ${PADDING_X}px ${PADDING_BOTTOM}px ${PADDING_X}px`,
           margin: '0',
           width: '100%',
           height: 'auto',

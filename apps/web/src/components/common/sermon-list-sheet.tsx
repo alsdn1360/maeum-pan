@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/sheet';
 import { Spinner } from '@/components/ui/spinner';
 
-import { SermonListItem } from './sermon-list-item';
+import { SermonListItem } from '../../app/(main)/_components/sermon-list-item';
 
 export function SermonListSheet() {
   const { sermonList, isLoading } = useSermonList();
@@ -23,7 +23,7 @@ export function SermonListSheet() {
     <Sheet>
       <SheetTrigger
         render={
-          <Button variant="ghost" size="icon" disabled={isLoading}>
+          <Button variant="ghost" size="icon">
             {menuIcon}
           </Button>
         }></SheetTrigger>
