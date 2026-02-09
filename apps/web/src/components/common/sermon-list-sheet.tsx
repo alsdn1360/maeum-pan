@@ -23,7 +23,7 @@ export function SermonListSheet() {
     <Sheet>
       <SheetTrigger
         render={
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="설교 목록 시트 열기">
             {menuIcon}
           </Button>
         }></SheetTrigger>

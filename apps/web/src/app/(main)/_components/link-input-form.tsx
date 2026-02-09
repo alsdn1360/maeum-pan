@@ -26,7 +26,11 @@ export function LinkInputForm() {
           disabled={isLoading}
           required
         />
-        <Button type="submit" size="icon-lg" disabled={isLoading}>
+        <Button
+          type="submit"
+          size="icon-lg"
+          disabled={isLoading}
+          aria-label="설교 요약하기">
           {isLoading ? <Spinner /> : sparklesIcon}
         </Button>
       </form>
