@@ -48,7 +48,6 @@ export function SermonShareDialog({
             링크를 복사하거나 카카오톡으로 바로 공유할 수 있습니다.
           </DialogDescription>
         </DialogHeader>
-
         <div className="flex flex-col gap-3">
           <div className="flex items-center gap-1.5">
             <Input value={url} className="truncate" readOnly />
@@ -71,7 +70,6 @@ export function SermonShareDialog({
               </span>
             </Button>
           </div>
-
           <Button
             variant="outline"
             onClick={() => handleShareKakao(videoId, sermonTitle, url)}

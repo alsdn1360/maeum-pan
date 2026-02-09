@@ -1,11 +1,11 @@
 'use client';
 
 import { createTransition } from '@/lib/motion';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 
 export function MainContentDescrition() {
   return (
-    <motion.div
+    <m.div
       className="flex flex-col text-center leading-relaxed"
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -15,6 +15,6 @@ export function MainContentDescrition() {
         유튜브 설교 영상의 링크를 입력하면,
         <br className="block sm:hidden" /> 다시 묵상할 수 있도록 정리해 드립니다
       </p>
-    </motion.div>
+    </m.div>
   );
 }
