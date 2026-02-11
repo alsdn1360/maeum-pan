@@ -14,6 +14,19 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['@hugeicons/core-free-icons', '@components/ui'],
   },
+  async headers() {
+    return [
+      {
+        source: '/:all*(woff|woff2|otf|ttf)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default withPWA(nextConfig);

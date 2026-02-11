@@ -8,7 +8,7 @@ import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
 import { cn } from '@/lib/utils';
-import { motion, useScroll } from 'framer-motion';
+import { m, useScroll } from 'framer-motion';
 import Link from 'next/link';
 
 import { useCaptureSermon } from '../_hooks/use-capture-sermon';
@@ -77,7 +77,7 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
         <SermonDeleteDialog videoId={videoId} isCapturing={isCapturing} />
       </div>
 
-      <motion.div
+      <m.div
         id="scroll-indicator"
         style={{
           scaleX: scrollYProgress,

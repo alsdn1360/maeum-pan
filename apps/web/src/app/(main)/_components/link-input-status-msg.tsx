@@ -1,7 +1,7 @@
 'use client';
 
 import { createTransition } from '@/lib/motion';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, m } from 'framer-motion';
 
 import { RotatingLoadingMsg } from './rotating-loading-msg';
 
@@ -18,7 +18,7 @@ export function LinkInputStatusMsg({
     <div className="h-4 w-full text-center">
       <AnimatePresence mode="wait">
         {errorMsg ? (
-          <motion.p
+          <m.p
             key="error-msg"
             className="text-destructive text-xs"
             initial={{ opacity: 0, y: 0 }}
@@ -26,11 +26,11 @@ export function LinkInputStatusMsg({
             exit={{ opacity: 0, y: 0 }}
             transition={createTransition()}>
             {errorMsg}
-          </motion.p>
+          </m.p>
         ) : isLoading ? (
           <RotatingLoadingMsg key="loading-msg" />
         ) : (
-          <motion.p
+          <m.p
             key="default-msg"
             className="text-muted-foreground text-xs"
             initial={{ opacity: 0, y: -12 }}
@@ -38,7 +38,7 @@ export function LinkInputStatusMsg({
             exit={{ opacity: 0, y: 0 }}
             transition={createTransition({ delay: 0.1 })}>
             자막이 없는 영상은 지원하지 않습니다
-          </motion.p>
+          </m.p>
         )}
       </AnimatePresence>
     </div>

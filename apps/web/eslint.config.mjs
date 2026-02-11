@@ -7,7 +7,14 @@ import simpleImportSort from 'eslint-plugin-simple-import-sort';
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  globalIgnores(['.next/**', 'out/**', 'build/**', 'next-env.d.ts']),
+  globalIgnores([
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+    'public/sw.js',
+    'public/workbox-*.js',
+  ]),
   {
     plugins: {
       'react-hooks': pluginReactHooks,
