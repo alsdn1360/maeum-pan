@@ -1,6 +1,5 @@
 import './globals.css';
 
-import KakaoScript from '@/app/sermon/[id]/_components/kakao-script';
 import { maruburi } from '@/assets/fonts/fonts';
 import { MotionProvider } from '@/components/providers/motion-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
@@ -69,7 +68,6 @@ export default function RootLayout({
         <Analytics />
         <SpeedInsights />
       </body>
-      <KakaoScript />
     </html>
   );
 }

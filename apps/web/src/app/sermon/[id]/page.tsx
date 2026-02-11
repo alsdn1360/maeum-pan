@@ -1,3 +1,4 @@
+import KakaoScript from './_components/kakao-script';
 import { SermonContent } from './_components/sermon-content';
 import { SermonFooter } from './_components/sermon-footer';
 import { SermonHeader } from './_components/sermon-header';
@@ -21,6 +22,7 @@ export default async function SermonPage({ params }: SermonPageProps) {
         <SermonContent videoId={id} />
         <SermonFooter />
       </div>
+      <KakaoScript />
     </main>
   );
 }
