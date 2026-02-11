@@ -4,7 +4,7 @@ from google import genai
 from google.genai.errors import ServerError
 from starlette.concurrency import run_in_threadpool
 
-from constants.prompts import SERMON_SUMMARY_PROMPT
+from constants.prompts import SERMON_SUMMARY_SYSTEM_INSTRUCTION
 from core.config import get_settings
 
 logger = logging.getLogger(__name__)
@@ -53,8 +53,9 @@ class GeminiService:
             response = await run_in_threadpool(
                 client.models.generate_content,
                 model="gemini-flash-latest",
-                contents=SERMON_SUMMARY_PROMPT + text_to_summarize,
+                contents=text_to_summarize,
                 config=genai.types.GenerateContentConfig(
+                    system_instruction=SERMON_SUMMARY_SYSTEM_INSTRUCTION,
                     temperature=0.1,
                 ),
             )
