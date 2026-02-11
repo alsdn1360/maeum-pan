@@ -24,6 +24,7 @@ export function LinkInputForm() {
           placeholder="예시: https://www.youtube.com/watch?v=..."
           className="h-10"
           disabled={isLoading}
+          autoComplete="off"
           required
         />
         <Button
