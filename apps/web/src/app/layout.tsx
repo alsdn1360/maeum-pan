@@ -2,6 +2,7 @@ import './globals.css';
 
 import KakaoScript from '@/app/sermon/[id]/_components/kakao-script';
 import { maruburi } from '@/assets/fonts/fonts';
+import { MotionProvider } from '@/components/providers/motion-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { APP_BASE_URL } from '@/constants/app-path';
@@ -45,8 +46,8 @@ export const viewport: Viewport = {
   ],
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 3,
+  userScalable: true,
 };
 
 export default function RootLayout({
@@ -62,7 +63,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange>
-          {children}
+          <MotionProvider>{children}</MotionProvider>
         </ThemeProvider>
         <Toaster />
         <Analytics />

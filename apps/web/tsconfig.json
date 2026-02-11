@@ -30,7 +30,7 @@
       "@/hooks": ["./src/hooks"],
       "@/lib": ["./src/lib"],
       "@/styles": ["./src/styles"],
-      "@/types": ["./src/types"],
+      "@/types": ["./src/types"]
     }
   },
   "include": [

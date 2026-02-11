@@ -15,12 +15,10 @@ export default async function SermonPage({ params }: SermonPageProps) {
   return (
     <main className="flex min-h-screen w-full flex-col">
       <SermonHeader videoId={id} />
-
       <div
         id={SERMON_CAPTURE_AREA_ID}
         className="bg-background mx-auto flex w-full max-w-prose flex-1 flex-col px-4 pt-5 pb-4 sm:px-0 sm:pt-5 sm:pb-4">
         <SermonContent videoId={id} />
-
         <SermonFooter />
       </div>
     </main>

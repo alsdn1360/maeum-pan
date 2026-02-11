@@ -1,8 +1,10 @@
 import { useState } from 'react';
 
+import { APP_BASE_URL } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { showToast } from '@/lib/show-toast';
 
+const DEFAULT_SHARE_IMAGE_URL = `${APP_BASE_URL}/images/default-share-image.png`;
 const YOUTUBE_THUMBNAIL_URL =
   'https://img.youtube.com/vi/{videoId}/maxresdefault.jpg';
 const COPY_CLEAR_DELAY = 5 * 1000; // 5초
@@ -36,17 +38,20 @@ export const useShareSermon = () => {
       return;
     }
 
-    const imageUrl = buildUrlWithParams({
+    const defaultShareImage = DEFAULT_SHARE_IMAGE_URL;
+    const youtubeThumbnail = buildUrlWithParams({
       url: YOUTUBE_THUMBNAIL_URL,
       pathParams: { videoId },
     });
+
+    const imageUrl = defaultShareImage || youtubeThumbnail;
 
     Kakao.Share.sendDefault({
       objectType: 'feed',
       content: {
         title: '마음에 새긴 말씀을 나눕니다 💌',
         description: sermonTitle,
-        imageUrl: imageUrl,
+        imageUrl,
         link: {
           mobileWebUrl: url,
           webUrl: url,
