@@ -38,7 +38,7 @@ export const useSermonData = ({ videoId }: UseSermonDataProps) => {
         videoId: response.videoId,
         summary: response.summary,
         createdAt: response.createdAt,
-        originalUrl: `https://www.youtube.com/watch?v=${response.videoId}`,
+        originalUrl: response.originalUrl,
         savedAt: new Date().toISOString(),
         isNonSermon: response.isNonSermon,
       };

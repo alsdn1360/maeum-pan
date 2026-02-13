@@ -24,5 +24,6 @@ class SermonResponse(BaseModel):
     model_config = ConfigDict(serialize_by_alias=True)
     video_id: str = Field(..., serialization_alias="videoId")
     summary: str
+    original_url: str = Field(..., serialization_alias="originalUrl")
     created_at: datetime = Field(..., serialization_alias="createdAt")
     is_non_sermon: bool = Field(False, serialization_alias="isNonSermon")

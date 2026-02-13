@@ -36,6 +36,10 @@ class YouTubeService:
         raise ValueError(f"유효하지 않은 YouTube URL 또는 비디오 ID입니다: {url_or_id}")
 
     @staticmethod
+    def build_canonical_url(video_id: str) -> str:
+        return f"https://www.youtube.com/watch?v={video_id}"
+
+    @staticmethod
     def fetch_transcript_sync(
         video_id: str, languages: list[str], preserve_formatting: bool
     ) -> str:

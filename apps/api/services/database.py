@@ -19,6 +19,7 @@ class SermonSummary(Base):
 
     video_id = Column(String, primary_key=True)
     summary = Column(Text, nullable=False)
+    original_url = Column(Text, nullable=False)
     is_non_sermon = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
@@ -83,6 +84,7 @@ class SermonCacheService:
                     return {
                         "video_id": row.video_id,
                         "summary": row.summary,
+                        "original_url": row.original_url,
                         "is_non_sermon": row.is_non_sermon,
                         "created_at": row.created_at,
                     }
@@ -93,7 +95,11 @@ class SermonCacheService:
 
     @classmethod
     async def save_sermon(
-        cls, video_id: str, summary: str, is_non_sermon: bool = False
+        cls,
+        video_id: str,
+        summary: str,
+        original_url: str,
+        is_non_sermon: bool = False,
     ) -> datetime | None:
         """설교 저장 후 created_at 반환"""
         if not async_session_factory:
@@ -109,14 +115,13 @@ class SermonCacheService:
                 existing = result.scalar_one_or_none()
 
                 if existing:
-                    existing.summary = summary
-                    existing.is_non_sermon = is_non_sermon
                     return existing.created_at
                 else:
                     now = datetime.now(UTC)
                     new_sermon = SermonSummary(
                         video_id=video_id,
                         summary=summary,
+                        original_url=original_url,
                         is_non_sermon=is_non_sermon,
                         created_at=now,
                     )

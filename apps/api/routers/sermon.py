@@ -24,6 +24,7 @@ async def get_sermon_by_id(video_id: str):
     return SermonResponse(
         video_id=cached["video_id"],
         summary=cached["summary"],
+        original_url=cached.get("original_url"),
         created_at=cached["created_at"],
         is_non_sermon=cached.get("is_non_sermon", False),
     )
@@ -43,6 +44,7 @@ async def create_sermon(request: SermonRequest):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    original_url = YouTubeService.build_canonical_url(video_id)
     cached = await SermonCacheService.get_cached_sermon(video_id)
     if cached:
         delay = random.uniform(CACHE_DELAY_MIN, CACHE_DELAY_MAX)
@@ -50,6 +52,7 @@ async def create_sermon(request: SermonRequest):
         return SermonResponse(
             video_id=cached["video_id"],
             summary=cached["summary"],
+            original_url=cached.get("original_url"),
             created_at=cached["created_at"],
             is_non_sermon=cached.get("is_non_sermon", False),
         )
@@ -67,12 +70,16 @@ async def create_sermon(request: SermonRequest):
         )
 
     created_at = await SermonCacheService.save_sermon(
-        video_id, result.summary, result.is_non_sermon
+        video_id,
+        result.summary,
+        original_url,
+        result.is_non_sermon,
     )
 
     return SermonResponse(
         video_id=video_id,
         summary=result.summary,
+        original_url=original_url,
         created_at=created_at or datetime.now(UTC),
         is_non_sermon=result.is_non_sermon,
     )
