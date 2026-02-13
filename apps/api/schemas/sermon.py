@@ -7,7 +7,9 @@ class SermonRequest(BaseModel):
     """자막 요청 스키마"""
 
     url: str
-    languages: list[str] = ["ko", "en"]  # 기본값: 한국어 우선, 영어 대체
+    languages: list[str] = Field(
+        default_factory=lambda: ["ko", "en"]
+    )  # 기본값: 한국어 우선, 영어 대체
     preserve_formatting: bool = False
 
     @field_validator("url")
@@ -16,6 +18,14 @@ class SermonRequest(BaseModel):
         if not v or not v.strip():
             raise ValueError("URL은 필수입니다")
         return v.strip()
+
+    @field_validator("languages")
+    @classmethod
+    def validate_languages(cls, v: list[str]) -> list[str]:
+        normalized = [language.strip() for language in v if language.strip()]
+        if not normalized:
+            raise ValueError("languages는 최소 1개 이상 필요합니다")
+        return normalized
 
 
 class SermonResponse(BaseModel):
