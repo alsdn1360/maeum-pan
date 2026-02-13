@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 
 from schemas.sermon import SermonRequest, SermonResponse
 from services.database import SermonCacheService
-from services.gemini import GeminiOverloadedError, GeminiService
+from services.gemini import GeminiOverloadedError, GeminiService, GeminiServiceError
 from services.youtube import YouTubeService
 
 router = APIRouter()
@@ -64,6 +64,11 @@ async def create_sermon(request: SermonRequest):
     try:
         result = await GeminiService.summarize_transcript(transcript_text)
     except GeminiOverloadedError:
+        raise HTTPException(
+            status_code=503,
+            detail="서버에 오류가 발생했어요. 잠시 후 다시 시도해주세요.",
+        )
+    except GeminiServiceError:
         raise HTTPException(
             status_code=503,
             detail="서버에 오류가 발생했어요. 잠시 후 다시 시도해주세요.",

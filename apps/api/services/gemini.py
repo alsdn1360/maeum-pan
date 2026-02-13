@@ -11,7 +11,13 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-class GeminiOverloadedError(Exception):
+class GeminiServiceError(Exception):
+    """Gemini 처리 실패 시 발생하는 기본 예외"""
+
+    pass
+
+
+class GeminiOverloadedError(GeminiServiceError):
     """Gemini API가 과부하 상태일 때 발생하는 예외"""
 
     pass
@@ -38,11 +44,11 @@ class GeminiService:
     @staticmethod
     async def summarize_transcript(transcript_text: str) -> SummarizeResult:
         if not client:
-            logger.warning("Gemini Client가 설정되지 않아 요약을 건너뜁니다.")
-            return SummarizeResult("")
+            logger.error("Gemini Client가 설정되지 않았습니다.")
+            raise GeminiServiceError("Gemini Client 미설정")
 
         if not transcript_text or not transcript_text.strip():
-            return SummarizeResult("")
+            raise GeminiServiceError("요약할 자막이 비어 있습니다")
 
         max_chars = 100_000
         text_to_summarize = transcript_text[:max_chars]
@@ -62,6 +68,11 @@ class GeminiService:
 
             if response and response.text:
                 result_text = response.text.strip()
+                if not result_text:
+                    logger.warning(
+                        "Gemini 응답 텍스트가 비어 있습니다. Response: %s", response
+                    )
+                    raise GeminiServiceError("Gemini 응답 텍스트 없음")
 
                 if NON_SERMON_MARKER in result_text:
                     logger.info("비설교 콘텐츠 감지됐습니다.")
@@ -70,14 +81,14 @@ class GeminiService:
                 return SummarizeResult(result_text)
 
             logger.warning("Gemini 응답에 텍스트가 없습니다. Response: %s", response)
-            return SummarizeResult("")
+            raise GeminiServiceError("Gemini 응답 텍스트 없음")
 
         except ServerError as e:
             if e.code == 503:
                 logger.error("Gemini 서버 과부하: %s", e)
-                raise GeminiOverloadedError("Gemini API가 과부하 상태입니다")
+                raise GeminiOverloadedError("Gemini 과부하 상태")
             logger.exception("Gemini 서버 오류: %s", e)
-            raise GeminiOverloadedError("Gemini API 서버 오류")
+            raise GeminiServiceError("Gemini 서버 오류")
         except Exception as e:
             logger.exception("Gemini 요약 실패: %s", e)
-            return SummarizeResult("")
+            raise GeminiServiceError("Gemini 요약 실패")
