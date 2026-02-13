@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 
 from sqlalchemy import Boolean, Column, DateTime, String, Text, func, select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
@@ -19,6 +20,7 @@ class SermonSummary(Base):
 
     video_id = Column(String, primary_key=True)
     summary = Column(Text, nullable=False)
+    original_url = Column(Text, nullable=False)
     is_non_sermon = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(
@@ -51,7 +53,7 @@ if settings.DATABASE_URL:
 
 
 @asynccontextmanager
-async def get_db_session():
+async def get_db_session(*, commit: bool = True):
     if not async_session_factory:
         yield None
         return
@@ -59,9 +61,11 @@ async def get_db_session():
     async with async_session_factory() as session:
         try:
             yield session
-            await session.commit()
+            if commit and session.in_transaction():
+                await session.commit()
         except Exception:
-            await session.rollback()
+            if session.in_transaction():
+                await session.rollback()
             raise
 
 
@@ -72,7 +76,7 @@ class SermonCacheService:
             return None
 
         try:
-            async with get_db_session() as session:
+            async with get_db_session(commit=False) as session:
                 if not session:
                     return None
                 result = await session.execute(
@@ -83,6 +87,7 @@ class SermonCacheService:
                     return {
                         "video_id": row.video_id,
                         "summary": row.summary,
+                        "original_url": row.original_url,
                         "is_non_sermon": row.is_non_sermon,
                         "created_at": row.created_at,
                     }
@@ -93,7 +98,11 @@ class SermonCacheService:
 
     @classmethod
     async def save_sermon(
-        cls, video_id: str, summary: str, is_non_sermon: bool = False
+        cls,
+        video_id: str,
+        summary: str,
+        original_url: str,
+        is_non_sermon: bool = False,
     ) -> datetime | None:
         """설교 저장 후 created_at 반환"""
         if not async_session_factory:
@@ -103,25 +112,30 @@ class SermonCacheService:
             async with get_db_session() as session:
                 if not session:
                     return None
-                result = await session.execute(
-                    select(SermonSummary).where(SermonSummary.video_id == video_id)
-                )
-                existing = result.scalar_one_or_none()
-
-                if existing:
-                    existing.summary = summary
-                    existing.is_non_sermon = is_non_sermon
-                    return existing.created_at
-                else:
-                    now = datetime.now(UTC)
-                    new_sermon = SermonSummary(
+                now = datetime.now(UTC)
+                insert_stmt = (
+                    insert(SermonSummary)
+                    .values(
                         video_id=video_id,
                         summary=summary,
+                        original_url=original_url,
                         is_non_sermon=is_non_sermon,
                         created_at=now,
                     )
-                    session.add(new_sermon)
-                    return now
+                    .on_conflict_do_nothing(index_elements=[SermonSummary.video_id])
+                    .returning(SermonSummary.created_at)
+                )
+                insert_result = await session.execute(insert_stmt)
+                inserted_created_at = insert_result.scalar_one_or_none()
+                if inserted_created_at:
+                    return inserted_created_at
+
+                existing_result = await session.execute(
+                    select(SermonSummary.created_at).where(
+                        SermonSummary.video_id == video_id
+                    )
+                )
+                return existing_result.scalar_one_or_none()
         except Exception as e:
             logger.warning("DB 저장 실패 (video_id=%s): %s", video_id, e)
             return None

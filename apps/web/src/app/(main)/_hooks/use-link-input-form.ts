@@ -27,7 +27,7 @@ const generateSermonFetcher = async (
     throw new Error(ERROR_MSGS.NON_SERMON);
   }
 
-  return { ...response, originalUrl: url };
+  return response;
 };
 
 export const useLinkInputForm = () => {

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
-from routers.sermon import create_sermon
 from schemas.sermon import SermonRequest
+from services.sermon import SermonService
 
 router = APIRouter()
 
@@ -19,7 +19,10 @@ async def get_transcript_by_id(
     - **languages**: 선호하는 언어 코드 (쉼표로 구분, 기본값: "ko,en")
     - **preserve_formatting**: HTML 포맷 유지 여부 (기본값: false)
     """
-    language_list = [lang.strip() for lang in languages.split(",")]
+    normalized_languages = languages or "ko,en"
+    language_list = [
+        lang.strip() for lang in normalized_languages.split(",") if lang.strip()
+    ]
 
     request = SermonRequest(
         url=video_id,
@@ -27,4 +30,4 @@ async def get_transcript_by_id(
         preserve_formatting=preserve_formatting,
     )
 
-    return await create_sermon(request)
+    return await SermonService.create_sermon_response(request)
