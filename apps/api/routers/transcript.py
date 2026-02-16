@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
+from pydantic import ValidationError
 
-from routers.sermon import create_sermon
 from schemas.sermon import SermonRequest
+from services.sermon import SermonService
 
 router = APIRouter()
 
@@ -9,7 +10,7 @@ router = APIRouter()
 @router.get("/transcript/{video_id}")
 async def get_transcript_by_id(
     video_id: str,
-    languages: str | None = "ko,en",
+    languages: str | None = None,
     preserve_formatting: bool = False,
 ):
     """
@@ -19,12 +20,24 @@ async def get_transcript_by_id(
     - **languages**: 선호하는 언어 코드 (쉼표로 구분, 기본값: "ko,en")
     - **preserve_formatting**: HTML 포맷 유지 여부 (기본값: false)
     """
-    language_list = [lang.strip() for lang in languages.split(",")]
+    normalized_languages = "ko,en" if languages is None else languages
+    language_list = [
+        lang.strip() for lang in normalized_languages.split(",") if lang.strip()
+    ]
 
-    request = SermonRequest(
-        url=video_id,
-        languages=language_list,
-        preserve_formatting=preserve_formatting,
-    )
+    if not language_list:
+        raise HTTPException(
+            status_code=422,
+            detail="languages는 최소 1개 이상 필요합니다",
+        )
 
-    return await create_sermon(request)
+    try:
+        request = SermonRequest(
+            url=video_id,
+            languages=language_list,
+            preserve_formatting=preserve_formatting,
+        )
+    except ValidationError as exc:
+        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+
+    return await SermonService.create_sermon_response(request)

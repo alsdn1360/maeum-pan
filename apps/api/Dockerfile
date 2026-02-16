@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# 시스템 의존성 설치 (psycopg2, yt-dlp용)
+# 시스템 의존성 설치 (빌드/미디어 처리용)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \

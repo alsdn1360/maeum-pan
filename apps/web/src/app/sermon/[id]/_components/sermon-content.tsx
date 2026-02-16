@@ -16,7 +16,7 @@ export function SermonContent({ videoId }: SermonContentProps) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-1 items-center justify-center">
+      <div className="-mt-16 flex flex-1 items-center justify-center">
         <Loading />
       </div>
     );

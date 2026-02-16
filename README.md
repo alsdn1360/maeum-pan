@@ -38,7 +38,6 @@ Next.js 프론트엔드와 FastAPI 백엔드로 구성된 모노레포 프로젝
 | **YouTube** | youtube-transcript-api | 0.6.3+ | YouTube 자막 추출 |
 | **데이터베이스** | SQLAlchemy | 2.0.0+ | ORM (asyncio 지원) |
 | | asyncpg | 0.29.0+ | PostgreSQL 비동기 드라이버 |
-| | psycopg2-binary | 2.9.0+ | PostgreSQL 동기 드라이버 |
 | **유틸리티** | python-dotenv | 1.0.0+ | 환경변수 관리 |
 | | ruff | 0.9.0+ | 빠른 Python 린터 & 포매터 |
 

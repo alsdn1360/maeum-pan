@@ -1,6 +1,7 @@
 export interface PostSermonResponse {
   videoId: string;
   summary: string;
+  originalUrl: string;
   createdAt: string;
   isNonSermon: boolean;
 }

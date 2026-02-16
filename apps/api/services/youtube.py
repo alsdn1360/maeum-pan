@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import re
@@ -13,6 +14,10 @@ from youtube_transcript_api._errors import (
 from youtube_transcript_api.proxies import WebshareProxyConfig
 
 logger = logging.getLogger(__name__)
+
+TRANSCRIPT_TIMEOUT_SECONDS = 60
+TRANSCRIPT_MAX_RETRIES = 3
+TRANSCRIPT_RETRY_BASE_DELAY_SECONDS = 0.5
 
 
 class YouTubeService:
@@ -34,6 +39,10 @@ class YouTubeService:
             return match.group(1)
 
         raise ValueError(f"유효하지 않은 YouTube URL 또는 비디오 ID입니다: {url_or_id}")
+
+    @staticmethod
+    def build_canonical_url(video_id: str) -> str:
+        return f"https://www.youtube.com/watch?v={video_id}"
 
     @staticmethod
     def fetch_transcript_sync(
@@ -72,12 +81,13 @@ class YouTubeService:
                 status_code=404,
                 detail="영상을 찾을 수 없거나 비공개 상태입니다",
             )
-        except Exception as e:
-            if isinstance(e, HTTPException):
-                raise e
+        except HTTPException:
+            raise
+        except Exception:
+            logger.exception("자막 조회 실패 (video_id=%s)", video_id)
             raise HTTPException(
                 status_code=500,
-                detail=f"자막을 가져오는 중 오류가 발생했습니다: {str(e)}",
+                detail="자막을 가져오는 중 오류가 발생했습니다",
             )
 
     @classmethod
@@ -87,6 +97,39 @@ class YouTubeService:
         """
         자막을 가져와서 텍스트로 변환합니다 (비동기).
         """
-        return await run_in_threadpool(
-            cls.fetch_transcript_sync, video_id, languages, preserve_formatting
+        for attempt in range(1, TRANSCRIPT_MAX_RETRIES + 1):
+            try:
+                return await asyncio.wait_for(
+                    run_in_threadpool(
+                        cls.fetch_transcript_sync,
+                        video_id,
+                        languages,
+                        preserve_formatting,
+                    ),
+                    timeout=TRANSCRIPT_TIMEOUT_SECONDS,
+                )
+            except TimeoutError as exc:
+                if attempt == TRANSCRIPT_MAX_RETRIES:
+                    raise HTTPException(
+                        status_code=504,
+                        detail="자막 조회 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.",
+                    ) from exc
+                logger.warning("자막 조회 시간 초과, 재시도 (%s/%s)", attempt, TRANSCRIPT_MAX_RETRIES)
+            except HTTPException as exc:
+                retryable = exc.status_code >= 500
+                if not retryable or attempt == TRANSCRIPT_MAX_RETRIES:
+                    raise
+                logger.warning(
+                    "자막 조회 실패(%s), 재시도 (%s/%s)",
+                    exc.status_code,
+                    attempt,
+                    TRANSCRIPT_MAX_RETRIES,
+                )
+
+            backoff = TRANSCRIPT_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
+            await asyncio.sleep(backoff)
+
+        raise HTTPException(
+            status_code=500,
+            detail="자막을 가져오는 중 오류가 발생했습니다",
         )
