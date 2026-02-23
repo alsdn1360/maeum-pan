@@ -1,15 +1,15 @@
 import { formatDate } from '@/lib/format-date';
 import Link from 'next/link';
 
-interface SermonContentActionsProps {
+interface SermonContentInfoProps {
   originalUrl: string;
   savedAt: string;
 }
 
-export function SermonContentActions({
+export function SermonContentInfo({
   originalUrl,
   savedAt,
-}: SermonContentActionsProps) {
+}: SermonContentInfoProps) {
   return (
     <div className="flex w-full flex-col items-start justify-between gap-8">
       <div className="flex flex-col items-start gap-1">
