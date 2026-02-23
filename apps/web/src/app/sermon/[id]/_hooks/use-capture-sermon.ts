@@ -7,7 +7,7 @@ import { SERMON_CAPTURE_AREA_ID } from '../_constants/sermon-capture';
 
 const PADDING_X = 16;
 const PADDING_TOP = 20;
-const PADDING_BOTTOM = 4;
+const PADDING_BOTTOM = 8;
 
 export const useCaptureSermon = () => {
   const [isCapturing, setIsCapturing] = useState(false);
@@ -26,8 +26,15 @@ export const useCaptureSermon = () => {
     try {
       await document.fonts.ready;
 
-      const currentBgColor = window.getComputedStyle(element).backgroundColor;
-      const width = element.scrollWidth + PADDING_X * 2;
+      const computedStyle = window.getComputedStyle(element);
+
+      const currentBgColor = computedStyle.backgroundColor;
+
+      const existingPaddingX =
+        parseFloat(computedStyle.paddingLeft) +
+        parseFloat(computedStyle.paddingRight);
+
+      const width = element.scrollWidth - existingPaddingX + PADDING_X * 2;
       const height = element.scrollHeight + PADDING_TOP + PADDING_BOTTOM;
 
       const dataUrl = await toPng(element, {
@@ -42,10 +49,7 @@ export const useCaptureSermon = () => {
           width: '100%',
           height: 'auto',
           maxWidth: 'none',
-          transform: 'none',
-          WebkitFontSmoothing: 'antialiased',
-          fontSmooth: 'antialiased',
-        } as Partial<CSSStyleDeclaration>,
+        },
       });
 
       const link = document.createElement('a');
