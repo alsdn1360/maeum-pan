@@ -5,7 +5,7 @@ import { Separator } from '@/components/ui/separator';
 
 import { useSermonData } from '../_hooks/use-sermon-data';
 import { SermonBody } from './sermon-body';
-import { SermonContentActions } from './sermon-content-actions';
+import { SermonContentInfo } from './sermon-content-info';
 
 interface SermonContentProps {
   videoId: string;
@@ -44,7 +44,7 @@ export function SermonContent({ videoId }: SermonContentProps) {
     <div className="flex flex-1 flex-col items-center justify-center">
       <SermonBody summary={data.summary} />
       <Separator className="mt-16 mb-4" />
-      <SermonContentActions
+      <SermonContentInfo
         originalUrl={data.originalUrl}
         savedAt={data.savedAt}
       />
