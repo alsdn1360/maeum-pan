@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
+from core.errors import ApiError
 from schemas.sermon import SermonRequest, SermonResponse
 from services.database import SermonCacheService
 from services.sermon import SermonService
@@ -11,7 +12,11 @@ router = APIRouter()
 async def get_sermon_by_id(video_id: str):
     cached = await SermonCacheService.get_cached_sermon(video_id)
     if not cached:
-        raise HTTPException(status_code=404, detail="해당 설교를 찾을 수 없습니다.")
+        raise ApiError(
+            status_code=404,
+            code="SERMON_NOT_FOUND",
+            message="요청한 설교를 찾을 수 없습니다.",
+        )
 
     return SermonResponse(
         video_id=cached["video_id"],

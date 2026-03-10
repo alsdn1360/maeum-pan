@@ -2,8 +2,7 @@ import asyncio
 import random
 from datetime import UTC, datetime
 
-from fastapi import HTTPException
-
+from core.errors import ApiError
 from schemas.sermon import SermonRequest, SermonResponse
 from services.database import SermonCacheService
 from services.gemini import GeminiOverloadedError, GeminiService, GeminiServiceError
@@ -19,12 +18,18 @@ class SermonService:
         try:
             video_id = YouTubeService.extract_video_id(request.url)
         except ValueError as exc:
-            raise HTTPException(status_code=400, detail=str(exc)) from exc
+            raise ApiError(
+                status_code=400,
+                code="INVALID_YOUTUBE_URL",
+                message="유효한 유튜브 영상 링크를 입력해주세요.",
+            ) from exc
 
         original_url = YouTubeService.build_canonical_url(video_id)
         cached = await SermonCacheService.get_cached_sermon(video_id)
         if cached:
-            delay = random.uniform(SermonService.CACHE_DELAY_MIN, SermonService.CACHE_DELAY_MAX)
+            delay = random.uniform(
+                SermonService.CACHE_DELAY_MIN, SermonService.CACHE_DELAY_MAX
+            )
             await asyncio.sleep(delay)
             return SermonResponse(
                 video_id=cached["video_id"],
@@ -41,14 +46,16 @@ class SermonService:
         try:
             result = await GeminiService.summarize_transcript(transcript_text)
         except GeminiOverloadedError as exc:
-            raise HTTPException(
+            raise ApiError(
                 status_code=503,
-                detail="서버에 오류가 발생했어요. 잠시 후 다시 시도해주세요.",
+                code="SUMMARY_TEMPORARILY_UNAVAILABLE",
+                message="요약을 생성하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
             ) from exc
         except GeminiServiceError as exc:
-            raise HTTPException(
+            raise ApiError(
                 status_code=503,
-                detail="서버에 오류가 발생했어요. 잠시 후 다시 시도해주세요.",
+                code="SUMMARY_GENERATION_FAILED",
+                message="요약을 생성하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
             ) from exc
 
         created_at = await SermonCacheService.save_sermon(

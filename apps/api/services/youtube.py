@@ -3,7 +3,6 @@ import logging
 import os
 import re
 
-from fastapi import HTTPException
 from starlette.concurrency import run_in_threadpool
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import (
@@ -12,6 +11,8 @@ from youtube_transcript_api._errors import (
     VideoUnavailable,
 )
 from youtube_transcript_api.proxies import WebshareProxyConfig
+
+from core.errors import ApiError
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class YouTubeService:
         if match:
             return match.group(1)
 
-        raise ValueError(f"유효하지 않은 YouTube URL 또는 비디오 ID입니다: {url_or_id}")
+        raise ValueError("유효하지 않은 YouTube URL 또는 비디오 ID입니다")
 
     @staticmethod
     def build_canonical_url(video_id: str) -> str:
@@ -67,27 +68,37 @@ class YouTubeService:
             return " ".join(segment.text for segment in transcript)
 
         except TranscriptsDisabled:
-            raise HTTPException(
+            raise ApiError(
                 status_code=403,
-                detail="이 영상은 자막이 비활성화되어 있습니다",
+                code="TRANSCRIPT_DISABLED",
+                message="이 영상은 자막을 제공하지 않습니다.",
             )
         except NoTranscriptFound:
-            raise HTTPException(
+            raise ApiError(
                 status_code=404,
-                detail=f"요청한 언어({', '.join(languages)})의 자막을 찾을 수 없습니다",
+                code="TRANSCRIPT_NOT_FOUND",
+                message="요청한 언어의 자막을 찾을 수 없습니다.",
+                details=[
+                    {
+                        "field": "languages",
+                        "message": f"요청 언어: {', '.join(languages)}",
+                    }
+                ],
             )
         except VideoUnavailable:
-            raise HTTPException(
+            raise ApiError(
                 status_code=404,
-                detail="영상을 찾을 수 없거나 비공개 상태입니다",
+                code="VIDEO_NOT_AVAILABLE",
+                message="영상을 찾을 수 없거나 비공개 상태입니다.",
             )
-        except HTTPException:
+        except ApiError:
             raise
         except Exception:
             logger.exception("자막 조회 실패 (video_id=%s)", video_id)
-            raise HTTPException(
+            raise ApiError(
                 status_code=500,
-                detail="자막을 가져오는 중 오류가 발생했습니다",
+                code="TRANSCRIPT_FETCH_FAILED",
+                message="자막을 가져오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
             )
 
     @classmethod
@@ -110,12 +121,17 @@ class YouTubeService:
                 )
             except TimeoutError as exc:
                 if attempt == TRANSCRIPT_MAX_RETRIES:
-                    raise HTTPException(
+                    raise ApiError(
                         status_code=504,
-                        detail="자막 조회 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.",
+                        code="TRANSCRIPT_TIMEOUT",
+                        message="자막 조회 시간이 초과되었습니다. 잠시 후 다시 시도해주세요.",
                     ) from exc
-                logger.warning("자막 조회 시간 초과, 재시도 (%s/%s)", attempt, TRANSCRIPT_MAX_RETRIES)
-            except HTTPException as exc:
+                logger.warning(
+                    "자막 조회 시간 초과, 재시도 (%s/%s)",
+                    attempt,
+                    TRANSCRIPT_MAX_RETRIES,
+                )
+            except ApiError as exc:
                 retryable = exc.status_code >= 500
                 if not retryable or attempt == TRANSCRIPT_MAX_RETRIES:
                     raise
@@ -129,7 +145,8 @@ class YouTubeService:
             backoff = TRANSCRIPT_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
             await asyncio.sleep(backoff)
 
-        raise HTTPException(
+        raise ApiError(
             status_code=500,
-            detail="자막을 가져오는 중 오류가 발생했습니다",
+            code="TRANSCRIPT_FETCH_FAILED",
+            message="자막을 가져오는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
         )

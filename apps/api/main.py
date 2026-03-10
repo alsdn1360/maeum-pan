@@ -1,9 +1,17 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from core.config import get_settings
+from core.errors import (
+    ApiError,
+    api_error_handler,
+    http_exception_handler,
+    unhandled_exception_handler,
+    validation_exception_handler,
+)
 from routers import sermon, transcript
 
 # 로깅 설정
@@ -17,6 +25,10 @@ app = FastAPI(
     description=settings.DESCRIPTION,
     version=settings.VERSION,
 )
+app.add_exception_handler(ApiError, api_error_handler)
+app.add_exception_handler(HTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(Exception, unhandled_exception_handler)
 
 # CORS 설정
 app.add_middleware(
