@@ -1,6 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from pydantic import ValidationError
 
+from core.errors import ApiError
 from schemas.sermon import SermonRequest
 from services.sermon import SermonService
 
@@ -26,9 +27,16 @@ async def get_transcript_by_id(
     ]
 
     if not language_list:
-        raise HTTPException(
+        raise ApiError(
             status_code=422,
-            detail="languages는 최소 1개 이상 필요합니다",
+            code="INVALID_REQUEST",
+            message="요청값이 올바르지 않습니다.",
+            details=[
+                {
+                    "field": "languages",
+                    "message": "languages는 최소 1개 이상 필요합니다.",
+                }
+            ],
         )
 
     try:
@@ -38,6 +46,11 @@ async def get_transcript_by_id(
             preserve_formatting=preserve_formatting,
         )
     except ValidationError as exc:
-        raise HTTPException(status_code=422, detail=exc.errors()) from exc
+        raise ApiError(
+            status_code=422,
+            code="INVALID_REQUEST",
+            message="요청값이 올바르지 않습니다.",
+            details=exc.errors(),
+        ) from exc
 
     return await SermonService.create_sermon_response(request)

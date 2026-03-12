@@ -4,6 +4,47 @@ const API_BASE_URL =
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 const TIMEOUT_MS = 3 * 60 * 1000; // 3분
 
+interface ApiErrorDetail {
+  field?: string;
+  message: string;
+}
+
+interface ApiErrorResponse {
+  error?: {
+    code?: string;
+    message?: string;
+    details?: ApiErrorDetail[];
+  };
+}
+
+const parseErrorMessage = (data: ApiErrorResponse | null) => {
+  const errorMessage = data?.error?.message;
+
+  if (errorMessage) {
+    return errorMessage;
+  }
+
+  if (Array.isArray(data?.error?.details) && data.error.details.length > 0) {
+    return (
+      data.error.details[0]?.message || '요청 처리 중 오류가 발생했습니다.'
+    );
+  }
+
+  return '요청 처리 중 오류가 발생했습니다.';
+};
+
+const parseResponseBody = <T>(text: string): T | ApiErrorResponse | null => {
+  if (!text) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(text) as T | ApiErrorResponse;
+  } catch {
+    return null;
+  }
+};
+
 const request = async <T>(
   endpoint: string,
   options: RequestInit,
@@ -20,13 +61,14 @@ const request = async <T>(
       signal: controller.signal,
     });
 
-    const data = await res.json();
+    const text = await res.text();
+    const data = parseResponseBody<T>(text);
 
     if (!res.ok) {
-      throw new Error(data.detail || 'Error');
+      throw new Error(parseErrorMessage(data as ApiErrorResponse | null));
     }
 
-    return data;
+    return data as T;
   } catch (error: unknown) {
     if (error instanceof Error && error.name === 'AbortError') {
       throw new Error('Request timed out (3분 초과)');
