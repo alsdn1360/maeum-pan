@@ -39,12 +39,17 @@ class SermonService:
                 is_non_sermon=cached.get("is_non_sermon", False),
             )
 
-        transcript_text = await YouTubeService.get_transcript_text(
-            video_id, request.languages, request.preserve_formatting
+        transcript_text, video_metadata = await asyncio.gather(
+            YouTubeService.get_transcript_text(
+                video_id, request.languages, request.preserve_formatting
+            ),
+            YouTubeService.get_video_metadata(video_id),
         )
 
         try:
-            result = await GeminiService.summarize_transcript(transcript_text)
+            result = await GeminiService.summarize_transcript(
+                transcript_text, video_metadata
+            )
         except GeminiOverloadedError as exc:
             raise ApiError(
                 status_code=503,

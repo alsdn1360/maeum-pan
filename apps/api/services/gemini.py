@@ -7,6 +7,7 @@ from starlette.concurrency import run_in_threadpool
 
 from constants.prompts import SERMON_SUMMARY_SYSTEM_INSTRUCTION
 from core.config import get_settings
+from services.youtube import YouTubeVideoMetadata
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -38,6 +39,8 @@ GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
 GEMINI_TIMEOUT_SECONDS = 120
 GEMINI_MAX_RETRIES = 3
 GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0
+GEMINI_MAX_TRANSCRIPT_CHARS = 100_000
+GEMINI_MAX_DESCRIPTION_CHARS = 4_000
 
 
 class SummarizeResult:
@@ -47,6 +50,41 @@ class SummarizeResult:
 
 
 class GeminiService:
+    @staticmethod
+    def _truncate_text(text: str, max_chars: int, truncated_suffix: str) -> str:
+        normalized_text = text.strip()
+        if len(normalized_text) <= max_chars:
+            return normalized_text
+        return normalized_text[:max_chars] + truncated_suffix
+
+    @staticmethod
+    def _build_summary_input(
+        transcript_text: str, metadata: YouTubeVideoMetadata | None
+    ) -> str:
+        safe_metadata = metadata or YouTubeVideoMetadata()
+        truncated_description = GeminiService._truncate_text(
+            safe_metadata.description,
+            GEMINI_MAX_DESCRIPTION_CHARS,
+            "\n\n[... 이하 설명 생략 ...]",
+        )
+        truncated_transcript = GeminiService._truncate_text(
+            transcript_text,
+            GEMINI_MAX_TRANSCRIPT_CHARS,
+            "\n\n[... 이하 생략 ...]",
+        )
+
+        return "\n".join(
+            [
+                "[YouTube Metadata]",
+                f"YouTube Title: {safe_metadata.title or '(none)'}",
+                "YouTube Description:",
+                truncated_description or "(none)",
+                "",
+                "[Transcript]",
+                truncated_transcript,
+            ]
+        )
+
     @staticmethod
     def _parse_response(response) -> SummarizeResult:
         if not response or not response.text:
@@ -68,7 +106,9 @@ class GeminiService:
         return SummarizeResult(result_text)
 
     @staticmethod
-    async def summarize_transcript(transcript_text: str) -> SummarizeResult:
+    async def summarize_transcript(
+        transcript_text: str, metadata: YouTubeVideoMetadata | None = None
+    ) -> SummarizeResult:
         if not client:
             logger.error("Gemini Client가 설정되지 않았습니다.")
             raise GeminiServiceError("Gemini Client 미설정")
@@ -76,10 +116,9 @@ class GeminiService:
         if not transcript_text or not transcript_text.strip():
             raise GeminiServiceError("요약할 자막이 없습니다")
 
-        max_chars = 100_000
-        text_to_summarize = transcript_text[:max_chars]
-        if len(transcript_text) > max_chars:
-            text_to_summarize += "\n\n[... 이하 생략 ...]"
+        text_to_summarize = GeminiService._build_summary_input(
+            transcript_text, metadata
+        )
 
         for attempt in range(1, GEMINI_MAX_RETRIES + 1):
             try:
