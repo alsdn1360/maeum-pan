@@ -10,7 +10,7 @@
       {
         "source": "**",
         "run": {
-          "serviceId": "maeum-pan",
+          "serviceId": "maeumpan-backend",
           "region": "asia-northeast3"
         }
       }
