@@ -34,6 +34,17 @@ class YouTubeVideoMetadata:
 
 class YouTubeService:
     @staticmethod
+    def _get_webshare_proxy_config() -> WebshareProxyConfig | None:
+        proxy_username = os.getenv("WEBSHARE_PROXY_USERNAME")
+        proxy_password = os.getenv("WEBSHARE_PROXY_PASSWORD")
+        if proxy_username and proxy_password:
+            return WebshareProxyConfig(
+                proxy_username=proxy_username,
+                proxy_password=proxy_password,
+            )
+        return None
+
+    @staticmethod
     def extract_video_id(url_or_id: str) -> str:
         """
         YouTube URL 또는 비디오 ID에서 비디오 ID를 추출합니다.
@@ -66,6 +77,9 @@ class YouTubeService:
             "noplaylist": True,
             "socket_timeout": METADATA_TIMEOUT_SECONDS,
         }
+        proxy_config = YouTubeService._get_webshare_proxy_config()
+        if proxy_config:
+            ydl_options["proxy"] = proxy_config.url
 
         with YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(canonical_url, download=False)
@@ -112,14 +126,7 @@ class YouTubeService:
     def fetch_transcript_sync(
         video_id: str, languages: list[str], preserve_formatting: bool
     ) -> str:
-        proxy_username = os.getenv("WEBSHARE_PROXY_USERNAME")
-        proxy_password = os.getenv("WEBSHARE_PROXY_PASSWORD")
-        proxy_config = None
-        if proxy_username and proxy_password:
-            proxy_config = WebshareProxyConfig(
-                proxy_username=proxy_username,
-                proxy_password=proxy_password,
-            )
+        proxy_config = YouTubeService._get_webshare_proxy_config()
 
         try:
             ytt_api = YouTubeTranscriptApi(proxy_config=proxy_config)
