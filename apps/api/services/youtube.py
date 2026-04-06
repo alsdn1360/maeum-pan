@@ -2,6 +2,7 @@ import asyncio
 import logging
 import os
 import re
+from dataclasses import dataclass
 
 from starlette.concurrency import run_in_threadpool
 from youtube_transcript_api import YouTubeTranscriptApi
@@ -11,6 +12,7 @@ from youtube_transcript_api._errors import (
     VideoUnavailable,
 )
 from youtube_transcript_api.proxies import WebshareProxyConfig
+from yt_dlp import YoutubeDL
 
 from core.errors import ApiError
 
@@ -19,9 +21,29 @@ logger = logging.getLogger(__name__)
 TRANSCRIPT_TIMEOUT_SECONDS = 60
 TRANSCRIPT_MAX_RETRIES = 3
 TRANSCRIPT_RETRY_BASE_DELAY_SECONDS = 0.5
+METADATA_TIMEOUT_SECONDS = 20
+METADATA_MAX_RETRIES = 2
+METADATA_RETRY_BASE_DELAY_SECONDS = 0.5
+
+
+@dataclass(slots=True)
+class YouTubeVideoMetadata:
+    title: str = ""
+    description: str = ""
 
 
 class YouTubeService:
+    @staticmethod
+    def _get_webshare_proxy_config() -> WebshareProxyConfig | None:
+        proxy_username = os.getenv("WEBSHARE_PROXY_USERNAME")
+        proxy_password = os.getenv("WEBSHARE_PROXY_PASSWORD")
+        if proxy_username and proxy_password:
+            return WebshareProxyConfig(
+                proxy_username=proxy_username,
+                proxy_password=proxy_password,
+            )
+        return None
+
     @staticmethod
     def extract_video_id(url_or_id: str) -> str:
         """
@@ -46,17 +68,65 @@ class YouTubeService:
         return f"https://www.youtube.com/watch?v={video_id}"
 
     @staticmethod
+    def fetch_video_metadata_sync(video_id: str) -> YouTubeVideoMetadata:
+        canonical_url = YouTubeService.build_canonical_url(video_id)
+        ydl_options = {
+            "quiet": True,
+            "no_warnings": True,
+            "skip_download": True,
+            "noplaylist": True,
+            "socket_timeout": METADATA_TIMEOUT_SECONDS,
+        }
+        proxy_config = YouTubeService._get_webshare_proxy_config()
+        if proxy_config:
+            ydl_options["proxy"] = proxy_config.url
+
+        with YoutubeDL(ydl_options) as ydl:
+            info = ydl.extract_info(canonical_url, download=False)
+
+        if not isinstance(info, dict):
+            return YouTubeVideoMetadata()
+
+        return YouTubeVideoMetadata(
+            title=(info.get("title") or "").strip(),
+            description=(info.get("description") or "").strip(),
+        )
+
+    @classmethod
+    async def get_video_metadata(cls, video_id: str) -> YouTubeVideoMetadata:
+        for attempt in range(1, METADATA_MAX_RETRIES + 1):
+            try:
+                return await asyncio.wait_for(
+                    run_in_threadpool(cls.fetch_video_metadata_sync, video_id),
+                    timeout=METADATA_TIMEOUT_SECONDS,
+                )
+            except TimeoutError:
+                logger.warning(
+                    "영상 메타데이터 조회 시간 초과 (%s/%s, video_id=%s)",
+                    attempt,
+                    METADATA_MAX_RETRIES,
+                    video_id,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "영상 메타데이터 조회 실패 (%s/%s, video_id=%s): %s",
+                    attempt,
+                    METADATA_MAX_RETRIES,
+                    video_id,
+                    exc,
+                )
+
+            if attempt < METADATA_MAX_RETRIES:
+                backoff = METADATA_RETRY_BASE_DELAY_SECONDS * (2 ** (attempt - 1))
+                await asyncio.sleep(backoff)
+
+        return YouTubeVideoMetadata()
+
+    @staticmethod
     def fetch_transcript_sync(
         video_id: str, languages: list[str], preserve_formatting: bool
     ) -> str:
-        proxy_username = os.getenv("WEBSHARE_PROXY_USERNAME")
-        proxy_password = os.getenv("WEBSHARE_PROXY_PASSWORD")
-        proxy_config = None
-        if proxy_username and proxy_password:
-            proxy_config = WebshareProxyConfig(
-                proxy_username=proxy_username,
-                proxy_password=proxy_password,
-            )
+        proxy_config = YouTubeService._get_webshare_proxy_config()
 
         try:
             ytt_api = YouTubeTranscriptApi(proxy_config=proxy_config)
