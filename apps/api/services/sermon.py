@@ -39,29 +39,38 @@ class SermonService:
                 is_non_sermon=cached.get("is_non_sermon", False),
             )
 
-        transcript_text, video_metadata = await asyncio.gather(
-            YouTubeService.get_transcript_text(
-                video_id, request.languages, request.preserve_formatting
-            ),
-            YouTubeService.get_video_metadata(video_id),
-        )
-
+        metadata_task = asyncio.create_task(YouTubeService.get_video_metadata(video_id))
         try:
-            result = await GeminiService.summarize_transcript(
-                transcript_text, video_metadata
+            transcript_text = await YouTubeService.get_transcript_text(
+                video_id, request.languages, request.preserve_formatting
             )
-        except GeminiOverloadedError as exc:
-            raise ApiError(
-                status_code=503,
-                code="SUMMARY_TEMPORARILY_UNAVAILABLE",
-                message="요약을 생성하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
-            ) from exc
-        except GeminiServiceError as exc:
-            raise ApiError(
-                status_code=503,
-                code="SUMMARY_GENERATION_FAILED",
-                message="요약을 생성하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
-            ) from exc
+
+            video_metadata = None
+            if metadata_task.done():
+                try:
+                    video_metadata = metadata_task.result()
+                except Exception:
+                    video_metadata = None
+
+            try:
+                result = await GeminiService.summarize_transcript(
+                    transcript_text, video_metadata
+                )
+            except GeminiOverloadedError as exc:
+                raise ApiError(
+                    status_code=503,
+                    code="SUMMARY_TEMPORARILY_UNAVAILABLE",
+                    message="요약을 생성하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                ) from exc
+            except GeminiServiceError as exc:
+                raise ApiError(
+                    status_code=503,
+                    code="SUMMARY_GENERATION_FAILED",
+                    message="요약을 생성하는 중 문제가 발생했습니다. 잠시 후 다시 시도해주세요.",
+                ) from exc
+        finally:
+            if not metadata_task.done():
+                metadata_task.cancel()
 
         created_at = await SermonCacheService.save_sermon(
             video_id,
