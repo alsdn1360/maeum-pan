@@ -14,7 +14,7 @@ from youtube_transcript_api._errors import (
 from youtube_transcript_api.proxies import WebshareProxyConfig
 from yt_dlp import YoutubeDL
 
-from core.errors import ApiError
+from ..core.errors import ApiError
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from schemas.error import ApiErrorResponse, normalize_error_details
+from ..schemas.error import ApiErrorResponse, normalize_error_details
 
 logger = logging.getLogger(__name__)
 

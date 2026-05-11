@@ -2,11 +2,11 @@ import asyncio
 import random
 from datetime import UTC, datetime
 
-from core.errors import ApiError
-from schemas.sermon import SermonRequest, SermonResponse
-from services.database import SermonCacheService
-from services.gemini import GeminiOverloadedError, GeminiService, GeminiServiceError
-from services.youtube import YouTubeService
+from ..core.errors import ApiError
+from ..schemas.sermon import SermonRequest, SermonResponse
+from .database import SermonCacheService
+from .gemini import GeminiOverloadedError, GeminiService, GeminiServiceError
+from .youtube import YouTubeService
 
 
 class SermonService:
