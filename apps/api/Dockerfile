@@ -23,10 +23,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # 애플리케이션 코드 복사
-COPY . .
+COPY . ./api
 
 # Cloud Run은 PORT 환경변수를 사용
 EXPOSE 8080
 
 # Uvicorn 실행 (workers는 Cloud Run이 자동 스케일링하므로 1개 권장)
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port $PORT"]
+CMD ["sh", "-c", "uvicorn api.main:app --host 0.0.0.0 --port $PORT"]

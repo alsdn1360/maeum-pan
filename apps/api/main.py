@@ -4,15 +4,15 @@ from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.config import get_settings
-from core.errors import (
+from .core.config import get_settings
+from .core.errors import (
     ApiError,
     api_error_handler,
     http_exception_handler,
     unhandled_exception_handler,
     validation_exception_handler,
 )
-from routers import sermon, transcript
+from .routers import sermon, transcript
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO)
@@ -53,4 +53,4 @@ async def root():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("api.main:app", host="0.0.0.0", port=8000, reload=True)

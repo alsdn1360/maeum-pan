@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 
-from core.errors import ApiError
-from schemas.sermon import SermonRequest, SermonResponse
-from services.database import SermonCacheService
-from services.sermon import SermonService
+from ..core.errors import ApiError
+from ..schemas.sermon import SermonRequest, SermonResponse
+from ..services.database import SermonCacheService
+from ..services.sermon import SermonService
 
 router = APIRouter()
 
