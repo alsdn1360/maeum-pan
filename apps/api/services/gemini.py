@@ -5,9 +5,9 @@ from google import genai
 from google.genai.errors import ServerError
 from starlette.concurrency import run_in_threadpool
 
-from constants.prompts import SERMON_SUMMARY_SYSTEM_INSTRUCTION
-from core.config import get_settings
-from services.youtube import YouTubeVideoMetadata
+from ..constants.prompts import SERMON_SUMMARY_SYSTEM_INSTRUCTION
+from ..core.config import get_settings
+from .youtube import YouTubeVideoMetadata
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -35,7 +35,7 @@ if settings.GEMINI_API_KEY:
 
 NON_SERMON_MARKER = "TYPE: NON_SERMON"
 
-GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
+GEMINI_MODEL = "gemini-3-flash-preview"
 GEMINI_TIMEOUT_SECONDS = 120
 GEMINI_MAX_RETRIES = 3
 GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0

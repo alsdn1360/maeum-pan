@@ -1,9 +1,9 @@
 from fastapi import APIRouter
 from pydantic import ValidationError
 
-from core.errors import ApiError
-from schemas.sermon import SermonRequest
-from services.sermon import SermonService
+from ..core.errors import ApiError
+from ..schemas.sermon import SermonRequest
+from ..services.sermon import SermonService
 
 router = APIRouter()
 
