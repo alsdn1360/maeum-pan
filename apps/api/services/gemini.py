@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from dataclasses import dataclass
 
 from google import genai
 from google.genai.errors import ClientError, ServerError
@@ -35,8 +36,9 @@ if settings.GEMINI_API_KEY:
 NON_SERMON_MARKER = "TYPE: NON_SERMON"
 
 GEMINI_MODEL = "gemini-3.5-flash-lite"
-GEMINI_TIMEOUT_SECONDS = 120
-GEMINI_MAX_RETRIES = 3
+# 자막 조회 예산과 합쳐 요청 전체가 Cloud Run 타임아웃(300초) 안에 끝나도록 잡는다.
+GEMINI_TIMEOUT_SECONDS = 100
+GEMINI_MAX_RETRIES = 2
 GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0
 GEMINI_MAX_TRANSCRIPT_CHARS = 100_000
 GEMINI_MAX_DESCRIPTION_CHARS = 4_000
@@ -53,10 +55,10 @@ GEMINI_GENERATE_CONFIG = genai.types.GenerateContentConfig(
 )
 
 
+@dataclass(slots=True)
 class SummarizeResult:
-    def __init__(self, summary: str, is_non_sermon: bool = False):
-        self.summary = summary
-        self.is_non_sermon = is_non_sermon
+    summary: str
+    is_non_sermon: bool = False
 
 
 class GeminiService:

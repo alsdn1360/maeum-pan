@@ -37,3 +37,21 @@ class SermonResponse(BaseModel):
     original_url: str = Field(..., serialization_alias="originalUrl")
     created_at: datetime = Field(..., serialization_alias="createdAt")
     is_non_sermon: bool = Field(False, serialization_alias="isNonSermon")
+
+    @classmethod
+    def from_cache(cls, cached: dict) -> "SermonResponse":
+        return cls(
+            video_id=cached["video_id"],
+            summary=cached["summary"],
+            original_url=cached.get("original_url"),
+            created_at=cached["created_at"],
+            is_non_sermon=cached.get("is_non_sermon", False),
+        )
+
+
+class TranscriptResponse(BaseModel):
+    """자막 추출 응답 스키마 (camelCase)"""
+
+    model_config = ConfigDict(serialize_by_alias=True)
+    video_id: str = Field(..., serialization_alias="videoId")
+    transcript: str

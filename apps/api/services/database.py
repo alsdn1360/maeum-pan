@@ -1,6 +1,6 @@
 import logging
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime
+from datetime import datetime
 
 from sqlalchemy import Boolean, Column, DateTime, String, Text, func, select
 from sqlalchemy.dialects.postgresql import insert
@@ -23,9 +23,6 @@ class SermonSummary(Base):
     original_url = Column(Text, nullable=False)
     is_non_sermon = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
-    )
 
 
 async_engine = None
@@ -112,7 +109,6 @@ class SermonCacheService:
             async with get_db_session() as session:
                 if not session:
                     return None
-                now = datetime.now(UTC)
                 insert_stmt = (
                     insert(SermonSummary)
                     .values(
@@ -120,7 +116,6 @@ class SermonCacheService:
                         summary=summary,
                         original_url=original_url,
                         is_non_sermon=is_non_sermon,
-                        created_at=now,
                     )
                     .on_conflict_do_nothing(index_elements=[SermonSummary.video_id])
                     .returning(SermonSummary.created_at)

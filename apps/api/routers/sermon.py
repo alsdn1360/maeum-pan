@@ -4,13 +4,23 @@ from ..core.errors import ApiError
 from ..schemas.sermon import SermonRequest, SermonResponse
 from ..services.database import SermonCacheService
 from ..services.sermon import SermonService
+from ..services.youtube import YouTubeService
 
 router = APIRouter()
 
 
 @router.get("/sermon/{video_id}", response_model=SermonResponse)
 async def get_sermon_by_id(video_id: str):
-    cached = await SermonCacheService.get_cached_sermon(video_id)
+    try:
+        normalized_video_id = YouTubeService.extract_video_id(video_id)
+    except ValueError as exc:
+        raise ApiError(
+            status_code=400,
+            code="INVALID_YOUTUBE_URL",
+            message="유효한 유튜브 영상 링크를 입력해주세요.",
+        ) from exc
+
+    cached = await SermonCacheService.get_cached_sermon(normalized_video_id)
     if not cached:
         raise ApiError(
             status_code=404,
@@ -18,13 +28,7 @@ async def get_sermon_by_id(video_id: str):
             message="요청한 설교를 찾을 수 없습니다.",
         )
 
-    return SermonResponse(
-        video_id=cached["video_id"],
-        summary=cached["summary"],
-        original_url=cached.get("original_url"),
-        created_at=cached["created_at"],
-        is_non_sermon=cached.get("is_non_sermon", False),
-    )
+    return SermonResponse.from_cache(cached)
 
 
 @router.post("/sermon", response_model=SermonResponse)
