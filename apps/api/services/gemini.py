@@ -35,7 +35,7 @@ if settings.GEMINI_API_KEY:
 
 NON_SERMON_MARKER = "TYPE: NON_SERMON"
 
-GEMINI_MODEL = "gemini-3-flash-preview"
+GEMINI_MODEL = "gemini-3.5-flash-lite"
 GEMINI_TIMEOUT_SECONDS = 120
 GEMINI_MAX_RETRIES = 3
 GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0
@@ -129,7 +129,6 @@ class GeminiService:
                         contents=text_to_summarize,
                         config=genai.types.GenerateContentConfig(
                             system_instruction=SERMON_SUMMARY_SYSTEM_INSTRUCTION,
-                            temperature=0.1,
                         ),
                     ),
                     timeout=GEMINI_TIMEOUT_SECONDS,

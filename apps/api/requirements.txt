@@ -9,7 +9,7 @@ youtube-transcript-api>=0.6.3
 yt-dlp>=2024.1.0
 
 # AI
-google-genai>=0.3.0
+google-genai>=2.0.0
 
 # Database
 sqlalchemy[asyncio]>=2.0.0
