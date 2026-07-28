@@ -1,30 +1,29 @@
 'use client';
 
-import { type RefObject } from 'react';
-
 import { homeIcon, imageDownloadIcon } from '@/components/common/icons/icons';
+import { useScrollContainer } from '@/components/common/scroll-layout';
 import { SermonListSheet } from '@/components/common/sermon-list-sheet';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
+import { useScrollProgress } from '@/lib/use-scroll-progress';
 import { cn } from '@/lib/utils';
 import { m } from 'framer-motion';
 import Link from 'next/link';
 
 import { useCaptureSermon } from '../_hooks/use-capture-sermon';
-import { useScrollProgress } from '../_hooks/use-scroll-progress';
 import { useSermonData } from '../_hooks/use-sermon-data';
 import { SermonDeleteDialog } from './sermon-delete-dialog';
 import { SermonShareDialog } from './sermon-share-dialog';
 
 interface SermonHeaderProps {
   videoId: string;
-  scrollRef: RefObject<HTMLDivElement | null>;
 }
 
-export function SermonHeader({ videoId, scrollRef }: SermonHeaderProps) {
+export function SermonHeader({ videoId }: SermonHeaderProps) {
+  const scrollRef = useScrollContainer();
   const { scrollYProgress, isScrolled } = useScrollProgress({ scrollRef });
   const { data } = useSermonData({ videoId });
 
