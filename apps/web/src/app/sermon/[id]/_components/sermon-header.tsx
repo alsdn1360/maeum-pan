@@ -1,18 +1,19 @@
 'use client';
 
 import { homeIcon, imageDownloadIcon } from '@/components/common/icons/icons';
+import { useScrollContainer } from '@/components/common/scroll-layout';
 import { SermonListSheet } from '@/components/common/sermon-list-sheet';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
 import { APP_BASE_URL, APP_PATH } from '@/constants/app-path';
 import { buildUrlWithParams } from '@/lib/build-url-with-params';
 import { extractSermonTitle } from '@/lib/extract-sermon-title';
+import { useScrollProgress } from '@/lib/use-scroll-progress';
 import { cn } from '@/lib/utils';
-import { m, useScroll } from 'framer-motion';
+import { m } from 'framer-motion';
 import Link from 'next/link';
 
 import { useCaptureSermon } from '../_hooks/use-capture-sermon';
-import { useScrollThreshold } from '../_hooks/use-scroll-thresold';
 import { useSermonData } from '../_hooks/use-sermon-data';
 import { SermonDeleteDialog } from './sermon-delete-dialog';
 import { SermonShareDialog } from './sermon-share-dialog';
@@ -22,8 +23,8 @@ interface SermonHeaderProps {
 }
 
 export function SermonHeader({ videoId }: SermonHeaderProps) {
-  const { scrollYProgress } = useScroll();
-  const { isScrolled } = useScrollThreshold({ threshold: 0 });
+  const scrollRef = useScrollContainer();
+  const { scrollYProgress, isScrolled } = useScrollProgress({ scrollRef });
   const { data } = useSermonData({ videoId });
 
   const { isCapturing, handleCaptureSermonCard } = useCaptureSermon();
@@ -40,7 +41,7 @@ export function SermonHeader({ videoId }: SermonHeaderProps) {
   return (
     <header
       className={cn(
-        'bg-background sticky top-0 z-10 flex h-16 w-full items-center justify-between border-b p-4 transition-all duration-200 ease-in-out',
+        'bg-background relative z-10 flex h-16 w-full shrink-0 items-center justify-between border-b p-4 transition-all duration-200 ease-in-out',
         isScrolled
           ? 'border-border dark:border-border/80'
           : 'border-transparent',

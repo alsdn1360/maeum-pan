@@ -18,18 +18,17 @@ def _parse_cors_origins() -> list[str]:
 
 class Settings:
     PROJECT_NAME: str = "마음판 API"
-    VERSION: str = "1.0.0"
+    VERSION: str = "1.2.0"
     DESCRIPTION: str = (
         "유튜브 설교 영상의 스크립트를 추출하고, Gemini API를 사용해 요약합니다"
     )
 
-    GEMINI_API_KEY: str | None = os.getenv("GEMINI_API_KEY")
-
-    DATABASE_URL: str | None = os.getenv("DATABASE_URL")
-
-    CORS_ORIGINS: list[str] = _parse_cors_origins()
+    def __init__(self):
+        self.GEMINI_API_KEY: str | None = os.getenv("GEMINI_API_KEY")
+        self.DATABASE_URL: str | None = os.getenv("DATABASE_URL")
+        self.CORS_ORIGINS: list[str] = _parse_cors_origins()
 
 
 @lru_cache
-def get_settings():
+def get_settings() -> Settings:
     return Settings()

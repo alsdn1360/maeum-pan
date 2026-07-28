@@ -5,13 +5,14 @@ const DEFAULT_DURATION = 0.5;
 
 interface CreateTransitionOptions {
   delay?: number;
+  duration?: number;
 }
 
 export function createTransition(
   options?: CreateTransitionOptions,
 ): Transition {
   return {
-    duration: DEFAULT_DURATION,
+    duration: options?.duration ?? DEFAULT_DURATION,
     ease: EASE_OUT,
     ...(options?.delay !== undefined && { delay: options.delay }),
   };

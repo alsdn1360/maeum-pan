@@ -18,8 +18,10 @@ from ..core.errors import ApiError
 
 logger = logging.getLogger(__name__)
 
-TRANSCRIPT_TIMEOUT_SECONDS = 60
-TRANSCRIPT_MAX_RETRIES = 3
+# 타임아웃돼도 threadpool의 동기 작업은 계속 돌기 때문에(취소 불가),
+# 재시도 횟수×타임아웃을 요청 전체 예산(Cloud Run 300초) 안으로 묶는다.
+TRANSCRIPT_TIMEOUT_SECONDS = 30
+TRANSCRIPT_MAX_RETRIES = 2
 TRANSCRIPT_RETRY_BASE_DELAY_SECONDS = 0.5
 METADATA_TIMEOUT_SECONDS = 20
 METADATA_MAX_RETRIES = 2
