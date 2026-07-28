@@ -2,8 +2,7 @@ import asyncio
 import logging
 
 from google import genai
-from google.genai.errors import ServerError
-from starlette.concurrency import run_in_threadpool
+from google.genai.errors import ClientError, ServerError
 
 from ..constants.prompts import SERMON_SUMMARY_SYSTEM_INSTRUCTION
 from ..core.config import get_settings
@@ -41,6 +40,17 @@ GEMINI_MAX_RETRIES = 3
 GEMINI_RETRY_BASE_DELAY_SECONDS = 1.0
 GEMINI_MAX_TRANSCRIPT_CHARS = 100_000
 GEMINI_MAX_DESCRIPTION_CHARS = 4_000
+
+# flash-lite의 thinking_level 기본값은 minimal이라 분류/추출용에 맞춰져 있다.
+# 이 프롬프트는 설교 판별 + 성경 고유명사 교차 검증 + 대지 추출을 한 번에 요구하므로
+# 한 단계 올린다. temperature/top_p는 Gemini 3 계열 권장대로 기본값을 그대로 둔다
+# (1.0 미만으로 낮추면 루핑이나 성능 저하가 발생할 수 있다).
+GEMINI_GENERATE_CONFIG = genai.types.GenerateContentConfig(
+    system_instruction=SERMON_SUMMARY_SYSTEM_INSTRUCTION,
+    thinking_config=genai.types.ThinkingConfig(
+        thinking_level=genai.types.ThinkingLevel.LOW,
+    ),
+)
 
 
 class SummarizeResult:
@@ -96,10 +106,12 @@ class GeminiService:
             logger.warning("Gemini 응답 텍스트가 비어 있습니다. Response: %s", response)
             raise GeminiServiceError("Gemini 응답 텍스트 없음")
 
+        # 마커가 코드펜스나 백틱, 짧은 부연과 함께 와도 비설교로 인식한다.
+        # 정상 요약(제목/본문/대지 포함)에 마커 단독 라인이 섞일 가능성은 사실상 없다.
         normalized_lines = [
-            line.strip() for line in result_text.splitlines() if line.strip()
+            line.strip().strip("`") for line in result_text.splitlines() if line.strip()
         ]
-        if len(normalized_lines) == 1 and normalized_lines[0] == NON_SERMON_MARKER:
+        if any(line == NON_SERMON_MARKER for line in normalized_lines):
             logger.info("비설교 콘텐츠가 감지되었습니다.")
             return SummarizeResult("", is_non_sermon=True)
 
@@ -123,13 +135,10 @@ class GeminiService:
         for attempt in range(1, GEMINI_MAX_RETRIES + 1):
             try:
                 response = await asyncio.wait_for(
-                    run_in_threadpool(
-                        client.models.generate_content,
+                    client.aio.models.generate_content(
                         model=GEMINI_MODEL,
                         contents=text_to_summarize,
-                        config=genai.types.GenerateContentConfig(
-                            system_instruction=SERMON_SUMMARY_SYSTEM_INSTRUCTION,
-                        ),
+                        config=GEMINI_GENERATE_CONFIG,
                     ),
                     timeout=GEMINI_TIMEOUT_SECONDS,
                 )
@@ -152,6 +161,19 @@ class GeminiService:
                 else:
                     logger.exception("Gemini 서버 오류: %s", exc)
                     raise GeminiServiceError("Gemini 서버 오류") from exc
+            except ClientError as exc:
+                if exc.code == 429:
+                    if attempt == GEMINI_MAX_RETRIES:
+                        logger.error("Gemini 요청 한도 초과: %s", exc)
+                        raise GeminiOverloadedError("Gemini 요청 한도 초과") from exc
+                    logger.warning(
+                        "Gemini 요청 한도 초과, 재시도 (%s/%s)",
+                        attempt,
+                        GEMINI_MAX_RETRIES,
+                    )
+                else:
+                    logger.exception("Gemini 요청 오류: %s", exc)
+                    raise GeminiServiceError("Gemini 요청 오류") from exc
             except GeminiServiceError:
                 raise
             except Exception as exc:
