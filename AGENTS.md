@@ -61,4 +61,5 @@ pnpm --filter api install:py   # apps/api/venv 생성 + requirements.txt 설치
 
 - 브랜치는 `dev`에서 따고 `dev`로 PR을 보낸다(`main`은 배포 브랜치).
 - 커밋 메시지: `Feat: `, `Fix: `, `Refactor: `, `Chore: `, `Design: ` 접두사 + 한국어 본문.
+- 커밋 본문은 **불릿 5개 이하**로 짧게 쓴다. 변경이 많아도 항목을 쪼개 나열하지 말고 묶어서 요약한다. 카테고리 소제목이나 여러 문장짜리 설명은 넣지 않는다.
 - `.env`, `.env.local`은 커밋하지 않는다.
