@@ -8,13 +8,6 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# 시스템 의존성 설치 (빌드/미디어 처리용)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
-    ffmpeg \
-    && rm -rf /var/lib/apt/lists/*
-
 # 의존성 먼저 복사 (캐시 활용)
 COPY requirements.txt .
 
