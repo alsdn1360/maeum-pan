@@ -125,10 +125,10 @@ react-markdown v10의 컴포넌트 props에는 `node`가 포함되므로 DOM에 
 본문 블록이 12~16개이고 여기에 구분선·출처 정보·푸터 3개가 더해지므로 전체
 캐스케이드는 약 0.75~0.95초에 끝난다.
 
-### 4. 로딩 컴포넌트 — `_components/sermon-loading.tsx`
+### 4. 상태 영역 컴포넌트 — `_components/sermon-status.tsx`
 
-페이지 내부 로딩 전용 컴포넌트를 새로 만든다. `app/loading.tsx`는 라우트 세그먼트
-로딩용으로 그대로 둔다.
+로딩·에러·빈값 세 상태가 문구만 다르고 마크업이 같으므로 하나의 컴포넌트로 묶어
+`children`을 받는다. `app/loading.tsx`는 라우트 세그먼트 로딩용으로 그대로 둔다.
 
 높이는 `min-h-[calc(100dvh-6.25rem)]`로 스크롤 컨테이너의 보이는 영역에 맞춘다.
 `6.25rem`(100px)의 근거는 헤더 `h-16`(64px) + 캡처 영역 `pt-5`(20px) +
@@ -154,10 +154,11 @@ react-markdown v10의 컴포넌트 props에는 `node`가 포함되므로 DOM에 
 신규:
 
 - `apps/web/src/app/sermon/[id]/_constants/sermon-motion.ts`
-- `apps/web/src/app/sermon/[id]/_components/sermon-loading.tsx`
+- `apps/web/src/app/sermon/[id]/_components/sermon-status.tsx`
 
 수정:
 
+- `apps/web/src/lib/motion.ts` (`createTransition`에 `duration` 옵션 추가)
 - `apps/web/src/app/sermon/[id]/_components/sermon-content.tsx`
 - `apps/web/src/app/sermon/[id]/_components/sermon-body.tsx`
 - `apps/web/src/app/sermon/[id]/page.tsx`
